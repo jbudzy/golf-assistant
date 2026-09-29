@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090e17" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981'/%3E%3Cpath d='M35 80 L35 20 L75 35 L35 50 Z' fill='%23090e17'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981'/%3E%3Cpath d='M35 80 L35 20 L75 35 L35 50 Z' fill='%23090e17'/%3E%3C/svg%3E" />
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Golf Decision Caddie","short_name":"Golf Caddie","start_url":".","display":"standalone","background_color":"%23090e17","theme_color":"%23090e17","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%2310b981%27/%3E%3Cpath d=%27M35 80 L35 20 L75 35 L35 50 Z%27 fill=%27%23090e17%27/%3E%3C/svg%3E","sizes":"192x192 512x512","type":"image/svg+xml","purpose":"any maskable"}]}' />
+  <title>Golf Decision Caddie</title>
+  <style>
+    :root {
+      --bg: #090e17;
+      --card-bg: #151f32;
+      --card-border: #26354a;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --p2-color: #38bdf8;
+      --p3-color: #f59e0b;
+      --full-color: #f43f5e;
+      --chip-color: #c084fc;
+      --putt-color: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding-bottom: max(60px, calc(60px + env(safe-area-inset-bottom)));
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Top Navigation Header */
+    .top-header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--card-border);
+      padding: max(12px, env(safe-area-inset-top)) 16px 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .top-header h1 { font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .gear-btn {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
+    }
+    .gear-btn:hover { background: #26354a; color: #fff; }
+
+    /* Primary vs Secondary Tab Hierarchy */
+    .hub-nav-bar {
+      background: #0c1424;
+      border-bottom: 1px solid var(--card-border);
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .main-hub-btn {
+      background: #152238;
+      border: 2px solid var(--accent);
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 9px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    }
+    .main-hub-btn:hover { background: #1c2b44; }
+    .main-hub-btn.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: var(--accent);
+    }
+
+    /* Global Long vs Short Segmented Control */
+    .global-mode-bar {
+      display: flex;
+      background: #090e17;
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .mode-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .mode-btn:hover { color: #fff; }
+    .mode-btn.active#modeBtn-long {
+      background: #1e293b;
+      color: #fff;
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+    .mode-btn.active#modeBtn-short {
+      background: #1e293b;
+      color: #fff;
+      border-color: var(--chip-color);
+      box-shadow: 0 0 10px rgba(192, 132, 252, 0.2);
+    }
+    .mode-unit-tag {
+      font-size: 0.65rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .mode-btn.active#modeBtn-long .mode-unit-tag {
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+    }
+    .mode-btn.active#modeBtn-short .mode-unit-tag {
+      background: rgba(192, 132, 252, 0.2);
+      color: #c084fc;
+    }
+
+    .secondary-tabs-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .secondary-tabs-row::-webkit-scrollbar { display: none; }
+
+    .sub-tab-btn {
+      flex: 1;
+      min-width: 72px;
+      text-align: center;
+      padding: 8px 6px;
+      background: #111c2e;
+      border: 1px solid var(--card-border);
+      border-radius: 7px;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .sub-tab-btn:hover { color: #fff; border-color: #3b506f; }
+    .sub-tab-btn.active {
+      color: #fff;
+      border-color: #64748b;
+      background: #1e293b;
+    }
+    .sub-tab-btn.disabled-mode {
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(1);
+    }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 14px; }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
+    /* Cards & Form Elements */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.25);
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .grid-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group.disabled-field {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .field-group.disabled-field input {
+      background: #090e17;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+    label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    input[type="number"], select {
+      background: #090e17;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      outline: none;
+      width: 100%;
+    }
+    input[type="number"]:focus, select:focus { border-color: var(--accent); }
+
+    .optional-tray {
+      background: #0d1524;
+      border: 1px dashed var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .plays-like-banner {
+      background: #090e17;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* Option Cards */
+    .option-card {
+      background: #101927;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.15s, border-color 0.15s;
+      border-left: 5px solid var(--card-border);
+    }
+    .option-card:hover { transform: translateY(-2px); border-color: #3b506f; }
+    .option-card:active { transform: scale(0.99); }
+
+    .opt-putt { border-left-color: var(--putt-color); }
+    .opt-chip { border-left-color: var(--chip-color); }
+    .opt-p2 { border-left-color: var(--p2-color); }
+    .opt-p3 { border-left-color: var(--p3-color); }
+    .opt-full { border-left-color: var(--full-color); }
+
+    .badge-tag {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .tag-putt { background: rgba(52, 211, 153, 0.18); color: var(--putt-color); }
+    .tag-chip { background: rgba(192, 132, 252, 0.18); color: var(--chip-color); }
+    .tag-p2 { background: rgba(56, 189, 248, 0.18); color: var(--p2-color); }
+    .tag-p3 { background: rgba(245, 158, 11, 0.18); color: var(--p3-color); }
+    .tag-full { background: rgba(244, 63, 94, 0.18); color: var(--full-color); }
+
+    /* Delta Indicators */
+    .delta-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .delta-exact { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .delta-short { background: rgba(56, 189, 248, 0.18); color: #38bdf8; }
+    .delta-long { background: rgba(244, 63, 94, 0.18); color: #f43f5e; }
+
+    .opt-header-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .opt-title { font-size: 1.12rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .opt-click-hint { font-size: 0.72rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+    .opt-metrics { font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; font-weight: 500; }
+    .opt-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px; }
+
+    .paces-notice {
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      color: #a7f3d0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Chipping Stage Runway */
+    .chip-stage-grid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin: 14px 0;
+      flex-wrap: wrap;
+    }
+    .chip-stage-box {
+      flex: 1;
+      min-width: 90px;
+      background: #090e17;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .stage-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .stage-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 4px 0;
+    }
+    .stage-desc {
+      font-size: 0.68rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .stage-arrow {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* Metronome */
+    .metronome-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #111c2e;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px 18px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .pulse-ring {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #151f32;
+      border: 3px solid var(--accent);
+      margin: 18px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      transition: transform 0.08s ease, background 0.08s ease;
+    }
+    .pulse-ring.vibe {
+      transform: scale(1.18);
+      background: var(--accent);
+      box-shadow: 0 0 28px rgba(16, 185, 129, 0.7);
+    }
+    .action-btn {
+      background: var(--accent);
+      color: #090e17;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 12px 24px;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.15s ease;
+    }
+    .action-btn:hover { opacity: 0.92; }
+    .action-btn.active-vibe { background: #f43f5e; color: #fff; }
+
+    .test-vibe-btn {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      color: #cbd5e1;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .feel-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .feel-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    .feel-list .bullet {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Matrix Table */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--card-border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.85rem; }
+    th, td { padding: 9px 11px; }
+    th { background: #0f172a; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; border-bottom: 2px solid var(--card-border); }
+    th.club-col, td.club-col { text-align: left; font-weight: 700; color: #fff; }
+    tbody tr { border-bottom: 1px solid var(--card-border); }
+    tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    tbody tr.highlighted { background: rgba(56, 189, 248, 0.15) !important; outline: 1px solid var(--p2-color); }
+
+    .back-btn-bar { margin-bottom: 10px; }
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .back-btn:hover { color: #fff; }
+
+    /* Modal / Drawer for Calibration */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(3px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-dialog {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      max-width: 540px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .status-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: #10b981;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid #10b981;
+      font-size: 0.8rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 300;
+    }
+    .status-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Persistent Bar -->
+  <header class="top-header">
+    <h1>🎯 Golf Caddie</h1>
+    <button class="gear-btn" onclick="openCalibrationModal()">⚙️ Bag Setup</button>
+  </header>
+
+  <!-- Persistent Navigation Bar -->
+  <nav class="hub-nav-bar">
+    <div class="global-mode-bar">
+      <button type="button" class="mode-btn active" id="modeBtn-long" onclick="setGameMode('long')">
+        <span>🏌️</span>
+        <span>Long Game</span>
+        <span class="mode-unit-tag">Yards</span>
+      </button>
+      <button type="button" class="mode-btn" id="modeBtn-short" onclick="setGameMode('short')">
+        <span>⛳</span>
+        <span>Short Game</span>
+        <span class="mode-unit-tag">Paces</span>
+      </button>
+    </div>
+
+    <button class="main-hub-btn active" id="tabBtn-advisor" onclick="routeTo('advisor')">
+      <span>🎯 Shot Selector</span>
+    </button>
+
+    <div class="secondary-tabs-row">
+      <button class="sub-tab-btn" id="tabBtn-full" onclick="routeTo('full')">🏌️ Full</button>
+      <button class="sub-tab-btn" id="tabBtn-partial" onclick="routeTo('partial')">📊 Partial</button>
+      <button class="sub-tab-btn" id="tabBtn-chipping" onclick="routeTo('chipping')">⛳ Chip</button>
+      <button class="sub-tab-btn" id="tabBtn-putting" onclick="routeTo('putting')">🟢 Putt</button>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <!-- 1. SHOT SELECTOR (MAIN SCREEN) -->
+    <section id="view-advisor" class="view-panel active">
+      <div class="card">
+        <div class="card-title">Shot Target & Conditions</div>
+        <div class="grid-row">
+          <div class="field-group">
+            <label for="advInputDist" id="advDistLabel">Target Distance (Yards)</label>
+            <input type="number" id="advInputDist" value="75" min="1" max="320" inputmode="numeric" />
+          </div>
+          <div class="field-group" id="advOffGreenGroup" style="display:none;">
+            <label for="advInputOffGreen">Paces Off Green</label>
+            <input type="number" id="advInputOffGreen" value="7" min="0" max="50" inputmode="numeric" />
+          </div>
+          <div class="field-group">
+            <label for="advLieSelect">Lie Condition</label>
+            <select id="advLieSelect">
+              <option value="fairway" selected>Fairway / Clean (1.0x)</option>
+              <option value="fringe">Fringe Collar (Punch roll)</option>
+              <option value="rough">Light Rough (+6% club-up)</option>
+              <option value="deep_rough">Heavy Rough (+12% club-up)</option>
+              <option value="green">On Green (Putt only)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="advTurfSelect">Turf Condition</label>
+            <select id="advTurfSelect">
+              <option value="soft">Soft / Wet (0.75x)</option>
+              <option value="medium" selected>Medium / Normal (1.0x)</option>
+              <option value="firm">Firm / Links (1.30x)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Optional Wind & Elevation -->
+        <div class="optional-tray" id="optionalTray">
+          <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">
+            Optional Environment Adjustments (Wind & Elevation)
+          </div>
+          <div class="grid-row">
+            <div class="field-group">
+              <label for="advWindSelect">Wind</label>
+              <select id="advWindSelect">
+                <option value="0" selected>Calm (0 mph)</option>
+                <option value="10">10 mph Headwind (+10y)</option>
+                <option value="20">20 mph Headwind (+20y)</option>
+                <option value="-7">10 mph Tailwind (-7y)</option>
+                <option value="-14">20 mph Tailwind (-14y)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="advElevSelect">Elevation</label>
+              <select id="advElevSelect">
+                <option value="0" selected>Level (0 ft)</option>
+                <option value="5">Uphill +15 ft (+5y)</option>
+                <option value="10">Uphill +30 ft (+10y)</option>
+                <option value="-5">Downhill -15 ft (-5y)</option>
+                <option value="-10">Downhill -30 ft (-10y)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="plays-like-banner">
+          <div>
+            <span style="font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Effective Target</span>
+            <div style="font-size:1.05rem; font-weight:800; color:#fff;" id="advPlaysLikeText">75 Yards (~83 Paces)</div>
+          </div>
+          <div id="advAdjustmentsBadge" style="font-size:0.72rem; color:var(--accent); font-weight:700;">No wind / elev adjustments</div>
+        </div>
+      </div>
+
+      <div id="pacesWarningBox" class="paces-notice" style="display:none;">
+        <span>⛳</span>
+        <div><strong>Short Game Active (Paces):</strong> Greenside execution for Chip &amp; Putt. Tap <strong>Long Game</strong> above for full &amp; partial approaches.</div>
+      </div>
+
+      <div class="card-title">Tactical Options (with &plusmn; Target Variance)</div>
+      <div id="advisorCardsList"></div>
+    </section>
+
+    <!-- 2. FULL SHOTS DETAIL VIEW (Full Shot Matrix) -->
+    <section id="view-full" class="view-panel">
+      <div class="back-btn-bar">
+        <button class="back-btn" onclick="routeTo('advisor')">← Back to Shot Selector</button>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span>Full Shot Matrix (Plays-Like)</span>
+          <button class="gear-btn" style="padding:3px 8px; font-size:0.7rem;" onclick="openCalibrationModal()">Edit Bag</button>
+        </div>
+
+        <div class="plays-like-banner" style="margin-top:0; margin-bottom:12px;">
+          <div>
+            <span style="font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Shot Selector Target</span>
+            <div style="font-size:1.05rem; font-weight:800; color:#fff;" id="fullConditionsDisplay">75 Yards (~83 Paces)</div>
+          </div>
+          <div id="fullConditionsBreakdown" style="font-size:0.72rem; color:var(--accent); font-weight:700;">
+            No wind / elev adjustments
+          </div>
+        </div>
+
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
+          All yardages reflect wind, elevation, and target from the Shot Selector. Highlighted row indicates the best matching stock club.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="club-col">Club</th>
+                <th>Stock</th>
+                <th style="color:var(--text-muted)">Wind/Elev</th>
+                <th style="color:var(--full-color)">Eff. Reach</th>
+                <th>vs Target</th>
+              </tr>
+            </thead>
+            <tbody id="fullTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PARTIAL MATRIX VIEW -->
+    <section id="view-partial" class="view-panel">
+      <div class="back-btn-bar">
+        <button class="back-btn" onclick="routeTo('advisor')">← Back to Shot Selector</button>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span>P2 (Hip) vs P3 (Half) Matrix</span>
+          <button class="gear-btn" style="padding:3px 8px; font-size:0.7rem;" onclick="openCalibrationModal()">Edit Bags</button>
+        </div>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
+          P2 = Single-lever runner (~32% speed, heavy roll). P3 = 90° wrist set, aerodynamic stopping flight (~68% speed).
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="club-col">Club</th>
+                <th>Stock</th>
+                <th style="color:var(--p2-color)">P2 Fly</th>
+                <th style="color:var(--p2-color)">P2 Run</th>
+                <th style="color:var(--p2-color)">P2 Tot</th>
+                <th style="color:var(--p3-color)">P3 Fly</th>
+                <th style="color:var(--p3-color)">P3 Run</th>
+                <th style="color:var(--p3-color)">P3 Tot</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. CHIPPING DETAIL VIEW -->
+    <section id="view-chipping" class="view-panel">
+      <div class="back-btn-bar">
+        <button class="back-btn" onclick="routeTo('advisor')">← Back to Shot Selector</button>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span>Runyan / Rule of 12 Chip Solver</span>
+          <span class="badge-tag tag-chip" id="chipUnitBadge">Paces Mode</span>
+        </div>
+
+        <div class="grid-row">
+          <div class="field-group">
+            <label for="chipDistTotal" id="chipTotalLabel">Total Distance to Pin (paces)</label>
+            <input type="number" id="chipDistTotal" value="25" min="3" max="80" inputmode="numeric" />
+          </div>
+          <div class="field-group">
+            <label for="chipDistOffGreen" id="chipOffGreenLabel">Distance Off Green (paces)</label>
+            <input type="number" id="chipDistOffGreen" value="7" min="0" max="40" inputmode="numeric" />
+          </div>
+          <div class="field-group">
+            <label for="chipBuffer" id="chipBufferLabel">Safe Buffer onto Green (paces)</label>
+            <input type="number" id="chipBuffer" value="2" min="1" max="10" inputmode="numeric" />
+          </div>
+          <div class="field-group">
+            <label for="chipFirmSelect">Green Speed / Firmness</label>
+            <select id="chipFirmSelect">
+              <option value="0.80">Soft / Slow (0.8x)</option>
+              <option value="1.00" selected>Normal (1.0x)</option>
+              <option value="1.25">Firm / Fast Links (1.25x)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3-Stage Visual Landing Runway -->
+        <div class="chip-stage-grid">
+          <div class="chip-stage-box">
+            <div class="stage-tag">Off-Green (Collar)</div>
+            <div class="stage-val" id="stageCollarVal">7 paces</div>
+            <div class="stage-desc">Must fly over</div>
+          </div>
+          <div class="stage-arrow">✈️</div>
+          <div class="chip-stage-box" style="border-color:var(--chip-color);">
+            <div class="stage-tag" style="color:var(--chip-color)">🎯 Safe Landing Spot</div>
+            <div class="stage-val" id="stageLandingVal" style="color:var(--chip-color)">9 paces fly</div>
+            <div class="stage-desc" id="stageBufferDesc">2 paces past fringe</div>
+          </div>
+          <div class="stage-arrow">⛳</div>
+          <div class="chip-stage-box">
+            <div class="stage-tag">Release Rollout</div>
+            <div class="stage-val" id="stageRollVal">16 paces roll</div>
+            <div class="stage-desc" id="stageTotalDesc">To cup (25 paces)</div>
+          </div>
+        </div>
+
+        <!-- Primary Recommendation Card -->
+        <div style="background:#090e17; padding:14px; border-radius:8px; margin-top:14px; border-left:4px solid var(--chip-color);">
+          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Optimal Club & Landing Target</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#fff;" id="chipRecClubDisplay">8 Iron (1:2 Carry-to-Roll)</div>
+          <div style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;" id="chipRecDetails">
+            Fly 9 paces (clears 7p fringe + lands 2p on green) &rarr; releases 18 paces to hole.
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
+            <strong>Mechanical Cue:</strong> Passive wrists, square face, ball back of center in stance. Rotate chest through impact with zero deceleration.
+          </div>
+        </div>
+
+        <!-- Chipping Club Comparison Table -->
+        <div class="card-title" style="margin-top:18px; margin-bottom:8px;">Club Comparison (Landing at 🎯 Safe Spot)</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="club-col">Club</th>
+                <th>Ratio</th>
+                <th style="color:var(--chip-color)">Fly</th>
+                <th>Roll</th>
+                <th>Total</th>
+                <th>vs Pin</th>
+              </tr>
+            </thead>
+            <tbody id="chipTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. PUTTING DETAIL VIEW (Shortest) -->
+    <section id="view-putting" class="view-panel">
+      <div class="back-btn-bar">
+        <button class="back-btn" onclick="routeTo('advisor')">← Back to Shot Selector</button>
+      </div>
+
+      <div class="card" style="border-left: 4px solid var(--putt-color);">
+        <div class="card-title">Putting Feel &amp; Rhythm</div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Target Distance</span>
+            <div style="font-size:1.4rem; font-weight:800; color:#fff;" id="puttActivePacesDisplay">8 Paces (~24 ft)</div>
+          </div>
+          <span class="badge-tag tag-putt">Pure Feel Mode</span>
+        </div>
+        <div id="puttStrokeGuide" style="font-size:0.75rem; color:var(--text-muted); margin-top:10px; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
+          Synchronized to Shot Selector
+        </div>
+      </div>
+
+      <!-- Silent Haptic & Audio Metronome -->
+      <div class="metronome-box">
+        <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Silent Cadence Trainer</div>
+        <div style="font-size:2.4rem; font-weight:800; margin-top:4px;">76 <span style="font-size:0.9rem; color:var(--text-muted);">BPM</span></div>
+        <div style="font-size:0.75rem; color:var(--accent); font-weight:600;">Tour Standard Rhythm (2:1 Back-to-Through Ratio)</div>
+
+        <div class="pulse-ring" id="vibeRing">📳</div>
+
+        <div style="display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap;">
+          <button class="action-btn" id="vibeToggleBtn" onclick="toggleCadenceMetronome()">
+            <span>▶</span> Start Metronome
+          </button>
+        </div>
+
+        <button class="test-vibe-btn" onclick="testPixelVibrationDirectly()">
+          ⚡ Tap to Test Pixel 8 Vibration Pulse
+        </button>
+        <div id="vibeDiagnosticText" style="font-size:0.72rem; color:var(--text-muted); margin-top:6px; min-height:16px;"></div>
+
+        <div style="display:flex; align-items:center; gap:8px; margin-top:14px;">
+          <input type="checkbox" id="metronomeAudioToggle" onchange="toggleAudioPreference(this.checked)" />
+          <label for="metronomeAudioToggle" style="text-transform:none; font-size:0.8rem; cursor:pointer;">
+            Enable subtle audio tick (audible tempo cue)
+          </label>
+        </div>
+
+        <div style="background:#090e17; border:1px solid var(--card-border); border-radius:6px; padding:8px 12px; margin-top:12px; font-size:0.7rem; color:var(--text-muted); text-align:left; max-width:360px;">
+          💡 <strong>Pixel 8 / Android Vibration Note:</strong> Ensure <em>Settings &gt; Sound & vibration &gt; Vibration & haptics &gt; Touch feedback</em> is turned ON. Also, Android Chrome suppresses vibration on raw <code>file://</code> URLs—access via a web link or local server.
+        </div>
+      </div>
+
+      <!-- Tour Feel Execution Checklist -->
+      <div class="card" style="margin-top:14px;">
+        <div class="card-title">Tour Feel Routine</div>
+        <ul class="feel-list">
+          <li>
+            <span class="bullet">1</span>
+            <div><strong>Look-at-the-hole rehearsals:</strong> Take 2 fluid practice strokes while looking directly at the cup. Let your eyes feed distance to your hands.</div>
+          </li>
+          <li>
+            <span class="bullet">2</span>
+            <div><strong>Soft grip pressure (3/10):</strong> Feel the weight of the putter head swinging like a free pendulum. Don't steer or decelerate.</div>
+          </li>
+          <li>
+            <span class="bullet">3</span>
+            <div><strong>One tempo, variable length:</strong> Trust the 76 BPM beat. For longer putts, simply let the arms swing wider back and through at that same tempo.</div>
+          </li>
+          <li>
+            <span class="bullet">4</span>
+            <div><strong>Look-and-go (&le; 2 seconds):</strong> Step in, take one last glance at the cup, look down, and trigger the stroke immediately while the visual image is vivid.</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CALIBRATION MODAL / DRAWER -->
+  <div class="modal-backdrop" id="calModal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-dialog">
+      <div class="card-title">
+        <span>⚙️ Bag & Stride Calibration</span>
+        <button style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;" onclick="closeCalibrationModal()">&times;</button>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label for="calPwInput">Baseline Full Pitching Wedge (yds)</label>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <input type="number" id="calPwInput" min="60" max="180" inputmode="numeric" />
+          <button class="gear-btn" onclick="recalibrateFromPw()" title="Auto-scale all other clubs based on standard gapping">Auto-Gap</button>
+        </div>
+        <p style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">
+          Auto-gap scales your hybrids, irons, and wedges proportionally from this PW distance.
+        </p>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label for="calPaceRatio">Pace Stride Length (Yards per Pace)</label>
+        <select id="calPaceRatio" style="margin-top:4px;">
+          <option value="0.90">0.90 yds/pace (Average walking stride ~32.5 in)</option>
+          <option value="1.00">1.00 yds/pace (1 pace = exactly 1 yard / 36 in)</option>
+          <option value="0.85">0.85 yds/pace (Shorter stride ~30.5 in)</option>
+        </select>
+      </div>
+
+      <div class="card-title" style="margin-top:16px;">Individual Club Stock Carry (yds)</div>
+      <div class="grid-row" id="calClubInputsGrid"></div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:18px;">
+        <button class="gear-btn" onclick="resetToDefaults()">Reset Defaults</button>
+        <button class="action-btn" style="padding:8px 18px; font-size:0.85rem;" onclick="saveAndCloseCalibrationModal()">Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-toast" id="toastMsg">Preferences saved</div>
+
+  <script>
+    /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+    function sanitizeNumber(val, defaultVal, min, max) {
+      const num = parseFloat(val);
+      if (isNaN(num)) return defaultVal;
+      if (min !== undefined && num < min) return min;
+      if (max !== undefined && num > max) return max;
+      return num;
+    }
+
+    // Default static specifications (including 4H and 3H)
+    const CLUB_SPECS = [
+      { id: "56", name: "56° SW", loft: 56, p2c: 0.1875, p2r: 0.333, p3c: 0.650, p3r: 0.058 },
+      { id: "52", name: "52° GW", loft: 52, p2c: 0.2000, p2r: 0.474, p3c: 0.663, p3r: 0.079 },
+      { id: "PW", name: "PW", loft: 45, p2c: 0.2090, p2r: 0.739, p3c: 0.682, p3r: 0.093 },
+      { id: "9i", name: "9 Iron", loft: 41, p2c: 0.2130, p2r: 1.038, p3c: 0.688, p3r: 0.143 },
+      { id: "8i", name: "8 Iron", loft: 37, p2c: 0.2070, p2r: 1.429, p3c: 0.681, p3r: 0.196 },
+      { id: "7i", name: "7 Iron", loft: 33, p2c: 0.2110, p2r: 1.677, p3c: 0.680, p3r: 0.250 },
+      { id: "6i", name: "6 Iron", loft: 29, p2c: 0.2090, p2r: 1.970, p3c: 0.677, p3r: 0.308 },
+      { id: "5i", name: "5 Iron", loft: 25, p2c: 0.2080, p2r: 2.229, p3c: 0.678, p3r: 0.351 },
+      { id: "4H", name: "4 Hybrid", loft: 22, p2c: 0.2060, p2r: 2.350, p3c: 0.676, p3r: 0.380 },
+      { id: "3H", name: "3 Hybrid", loft: 19, p2c: 0.2050, p2r: 2.500, p3c: 0.675, p3r: 0.400 }
+    ];
+
+    const TURF_MULTIPLIERS = {
+      soft: 0.75,
+      medium: 1.00,
+      firm: 1.30
+    };
+
+    // Lie physics & kinematics multipliers
+    const LIE_SPECS = {
+      fairway: {
+        name: "Fairway",
+        carryMult: 1.0,
+        rollMult: 1.0,
+        addPct: 0.0,
+        allowsPutt: true,
+        allowsP2: true,
+        badge: "Clean lie",
+        cue: "Clean strike with standard spin and rollout."
+      },
+      fringe: {
+        name: "Fringe Collar",
+        carryMult: 1.0,
+        rollMult: 0.90,
+        addPct: 0.0,
+        allowsPutt: true,
+        allowsP2: true,
+        badge: "Fringe collar",
+        cue: "Collar grass: add +15% stroke effort if putting."
+      },
+      rough: {
+        name: "Light Rough",
+        carryMult: 0.95,
+        rollMult: 1.25,
+        addPct: 0.06, // +6% distance required to compensate for grass cushioning
+        allowsPutt: false,
+        allowsP2: false,
+        badge: "Light Rough (+6% club-up)",
+        cue: "Flier risk: grass reduces backspin. Expect lower trajectory and extra release."
+      },
+      deep_rough: {
+        name: "Heavy Rough",
+        carryMult: 0.88,
+        rollMult: 1.40,
+        addPct: 0.12, // +12% distance required (~1-2 clubs more)
+        allowsPutt: false,
+        allowsP2: false,
+        badge: "Heavy Rough (+12% club-up)",
+        cue: "Heavy grass drag: take 1-2 clubs more with steep descending blow."
+      },
+      green: {
+        name: "On Green",
+        carryMult: 1.0,
+        rollMult: 1.0,
+        addPct: 0.0,
+        allowsPutt: true,
+        allowsP2: false,
+        badge: "On Green (Putt only)",
+        cue: "Ball is on putting surface: roll with putter to eliminate chunk hazard."
+      }
+    };
+
+    // Standard Rule of 12 / Runyan carry-to-roll ratios
+    const CHIP_CLUBS = [
+      { id: "3H", name: "3 Hybrid", ratioLabel: "1:8", rollRatio: 8.0 },
+      { id: "4H", name: "4 Hybrid", ratioLabel: "1:7", rollRatio: 7.0 },
+      { id: "5i", name: "5 Iron",   ratioLabel: "1:6", rollRatio: 6.0 },
+      { id: "6i", name: "6 Iron",   ratioLabel: "1:5", rollRatio: 5.0 },
+      { id: "7i", name: "7 Iron",   ratioLabel: "1:4", rollRatio: 4.0 },
+      { id: "8i", name: "8 Iron",   ratioLabel: "1:3", rollRatio: 3.0 },
+      { id: "9i", name: "9 Iron",   ratioLabel: "1:2", rollRatio: 2.0 },
+      { id: "PW", name: "PW",       ratioLabel: "1:1", rollRatio: 1.0 },
+      { id: "52", name: "52° GW",   ratioLabel: "2:1", rollRatio: 0.5 },
+      { id: "56", name: "56° SW",   ratioLabel: "4:1", rollRatio: 0.25 }
+    ];
+
+    const LIE_OPTIONS_LONG = [
+      { value: 'fairway', label: 'Fairway / Clean (1.0x)' },
+      { value: 'fringe', label: 'Fringe Collar (Punch roll)' },
+      { value: 'rough', label: 'Light Rough (+6% club-up)' },
+      { value: 'deep_rough', label: 'Heavy Rough (+12% club-up)' }
+    ];
+
+    const LIE_OPTIONS_SHORT = [
+      { value: 'green', label: 'On Green (Putt only)' },
+      { value: 'fringe', label: 'Fringe Collar (Punch roll)' },
+      { value: 'fairway', label: 'Fairway / Tight (1.0x)' },
+      { value: 'rough', label: 'Light Rough (+6% club-up)' },
+      { value: 'deep_rough', label: 'Heavy Rough (+12% club-up)' }
+    ];
+
+    function syncLieOptionsForGameMode() {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      const lieSelect = document.getElementById('advLieSelect');
+      if (!lieSelect) return;
+
+      const isShort = userState.gameMode === 'short';
+      const options = isShort ? LIE_OPTIONS_SHORT : LIE_OPTIONS_LONG;
+      const currentVal = lieSelect.value;
+
+      let targetVal = currentVal;
+      const exists = options.some(o => o.value === currentVal);
+      if (!exists) {
+        targetVal = isShort ? 'green' : 'fairway';
+      }
+
+      lieSelect.innerHTML = '';
+      options.forEach(opt => {
+        const el = document.createElement('option');
+        el.value = opt.value;
+        el.textContent = opt.label;
+        if (opt.value === targetVal) el.selected = true;
+        lieSelect.appendChild(el);
+      });
+    }
+
+    const DEFAULT_STATE = {
+      pwBaseline: 110,
+      paceRatio: 0.90,
+      turfCondition: 'medium',
+      gameMode: 'long', // 'long' (yards) or 'short' (paces)
+      unit: 'yards',
+      soundEnabled: true, // Default to true so sound works out-of-the-box
+      clubs: {
+        "56": 80,
+        "52": 95,
+        "PW": 110,
+        "9i": 122,
+        "8i": 135,
+        "7i": 147,
+        "6i": 158,
+        "5i": 168,
+        "4H": 180,
+        "3H": 195
+      }
+    };
+
+    // State with LocalStorage
+    let userState = loadState();
+
+    function loadState() {
+      try {
+        const stored = localStorage.getItem('golf_caddie_state');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const gameMode = ['long', 'short'].includes(parsed.gameMode)
+            ? parsed.gameMode
+            : (parsed.unit === 'paces' ? 'short' : 'long');
+          const unit = gameMode === 'short' ? 'paces' : 'yards';
+          return {
+            pwBaseline: sanitizeNumber(parsed.pwBaseline, DEFAULT_STATE.pwBaseline, 60, 200),
+            paceRatio: sanitizeNumber(parsed.paceRatio, DEFAULT_STATE.paceRatio, 0.5, 1.5),
+            turfCondition: ['soft', 'medium', 'firm'].includes(parsed.turfCondition) ? parsed.turfCondition : 'medium',
+            gameMode: gameMode,
+            unit: unit,
+            soundEnabled: parsed.soundEnabled !== undefined ? Boolean(parsed.soundEnabled) : DEFAULT_STATE.soundEnabled,
+            clubs: { ...DEFAULT_STATE.clubs, ...(parsed.clubs || {}) }
+          };
+        }
+      } catch (e) {
+        console.warn('Failed to parse stored state, falling back to defaults:', e);
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('golf_caddie_state', JSON.stringify(userState));
+        showToast('Preferences saved');
+      } catch (e) {
+        console.error('Could not save state to localStorage', e);
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastMsg');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    // Global Long vs Short Mode Controller (Auto sets Yards vs Paces)
+    function setGameMode(mode) {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      const validMode = (mode === 'short') ? 'short' : 'long';
+      userState.gameMode = validMode;
+      userState.unit = validMode === 'short' ? 'paces' : 'yards';
+
+      // Update switcher button highlights
+      const btnLong = document.getElementById('modeBtn-long');
+      const btnShort = document.getElementById('modeBtn-short');
+      if (btnLong && btnShort) {
+        if (validMode === 'long') {
+          btnLong.classList.add('active');
+          btnShort.classList.remove('active');
+        } else {
+          btnShort.classList.add('active');
+          btnLong.classList.remove('active');
+        }
+      }
+
+      // Context-aware distance transition
+      const distInput = document.getElementById('advInputDist');
+      const offGreenInput = document.getElementById('advInputOffGreen');
+      if (distInput) {
+        const curVal = parseFloat(distInput.value) || (validMode === 'long' ? 140 : 25);
+        if (validMode === 'short') {
+          const offVal = parseFloat(offGreenInput?.value) || 7;
+          if (curVal <= offVal || curVal > 60) {
+            distInput.value = Math.max(25, offVal + 1); // Sensible default strictly greater than off-green
+          }
+        } else if (validMode === 'long' && curVal < 40) {
+          distInput.value = 135; // Sensible default for mid-iron approach
+        }
+      }
+
+      saveState();
+      syncLieOptionsForGameMode();
+      renderAdvisor();
+      renderChipping();
+      renderFull();
+      renderPutting();
+
+      // If active tab is now gated/disabled, gracefully route back to advisor hub
+      const activeView = document.querySelector('.view-panel.active');
+      const activeId = activeView ? activeView.id : '';
+      if (validMode === 'short' && (activeId === 'view-full' || activeId === 'view-partial')) {
+        routeTo('advisor');
+      } else if (validMode === 'long' && (activeId === 'view-chipping' || activeId === 'view-putting')) {
+        routeTo('advisor');
+      }
+    }
+
+    // Navigation & Deep Routing
+    function routeTo(tabKey, targetParams = null) {
+      // Manage active nav buttons
+      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      const mainHubBtn = document.getElementById('tabBtn-advisor');
+      if (mainHubBtn) mainHubBtn.classList.remove('active');
+
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+
+      const btn = document.getElementById(`tabBtn-${tabKey}`);
+      const view = document.getElementById(`view-${tabKey}`);
+      if (btn) btn.classList.add('active');
+      if (view) view.classList.add('active');
+
+      if (tabKey === 'putting') {
+        renderPutting(targetParams ? targetParams.paces : null);
+      } else if (targetParams) {
+        if (tabKey === 'chipping') {
+          const tot = targetParams.total !== undefined ? targetParams.total : (targetParams.yards || 25);
+          const off = targetParams.offGreen !== undefined ? targetParams.offGreen : Math.max(2, Math.round(tot * 0.28));
+          document.getElementById('chipDistTotal').value = tot;
+          document.getElementById('chipDistOffGreen').value = off;
+          renderChipping();
+        } else if (tabKey === 'partial') {
+          renderMatrix(targetParams.highlightClubId);
+        } else if (tabKey === 'full') {
+          renderFull(targetParams.highlightClubId);
+        }
+      } else if (tabKey === 'chipping') {
+        renderChipping();
+      } else if (tabKey === 'full') {
+        renderFull();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 1. Omni Shot Selector Logic
+    function renderAdvisor() {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      const isPacesMode = userState.gameMode === 'short';
+      const distInput = document.getElementById('advInputDist');
+      const offGreenInput = document.getElementById('advInputOffGreen');
+      const offGreenGroup = document.getElementById('advOffGreenGroup');
+      const distLabel = document.getElementById('advDistLabel');
+      const lieKey = document.getElementById('advLieSelect').value;
+      const lieSpec = LIE_SPECS[lieKey] || LIE_SPECS.fairway;
+      const turfKey = document.getElementById('advTurfSelect').value;
+      const windAdj = sanitizeNumber(document.getElementById('advWindSelect').value, 0, -30, 40);
+      const elevAdj = sanitizeNumber(document.getElementById('advElevSelect').value, 0, -30, 30);
+
+      userState.turfCondition = turfKey;
+      const turfMultiplier = TURF_MULTIPLIERS[turfKey] || 1.0;
+      const ratio = userState.paceRatio || 0.90;
+
+      // Mode: If short game, green-side execution only!
+      const warningBox = document.getElementById('pacesWarningBox');
+      const optTray = document.getElementById('optionalTray');
+      if (optTray) optTray.style.display = isPacesMode ? 'none' : 'block';
+
+      let offGreenPaces = 0;
+      if (offGreenGroup) {
+        if (isPacesMode) {
+          offGreenGroup.style.display = 'flex';
+          if (lieKey === 'green') {
+            offGreenGroup.classList.add('disabled-field');
+            if (offGreenInput) {
+              offGreenInput.disabled = true;
+              offGreenInput.value = 0;
+            }
+            offGreenPaces = 0;
+          } else {
+            offGreenGroup.classList.remove('disabled-field');
+            if (offGreenInput) {
+              offGreenInput.disabled = false;
+              if (parseFloat(offGreenInput.value) === 0) {
+                offGreenInput.value = 7;
+              }
+              offGreenPaces = sanitizeNumber(offGreenInput.value, 7, 0, 100);
+            }
+          }
+        } else {
+          offGreenGroup.style.display = 'none';
+        }
+      }
+      if (distLabel) distLabel.textContent = isPacesMode ? 'Total to Pin (Paces)' : 'Target Distance (Yards)';
+
+      // Kinematic constraint: Total distance cannot be less than distance off green
+      const minTotalAllowed = isPacesMode ? (lieKey === 'green' ? 1 : Math.max(2, offGreenPaces + 1)) : 20;
+      let rawDist = sanitizeNumber(distInput?.value, isPacesMode ? 25 : 75, 1, 350);
+      if (isPacesMode && rawDist < minTotalAllowed) {
+        rawDist = minTotalAllowed;
+      }
+
+      // Synchronize native input attributes
+      if (distInput) {
+        distInput.min = minTotalAllowed;
+      }
+      if (offGreenInput && isPacesMode && lieKey !== 'green') {
+        offGreenInput.max = Math.max(0, rawDist - 1);
+      }
+
+      // Base conversion
+      const baseRawYards = isPacesMode ? Math.round(rawDist * ratio) : rawDist;
+      // Wind + elevation + lie apply in long game (yards mode)
+      const effectiveWind = isPacesMode ? 0 : windAdj;
+      const effectiveElev = isPacesMode ? 0 : elevAdj;
+      const lieAdj = isPacesMode ? 0 : Math.round(baseRawYards * lieSpec.addPct);
+      const netAdj = effectiveWind + effectiveElev + lieAdj;
+      const playingYards = Math.max(1, Math.round(baseRawYards + netAdj));
+      const playingPaces = Math.round(playingYards / ratio);
+
+      // Update header banner
+      const badgeEl = document.getElementById('advAdjustmentsBadge');
+      if (!isPacesMode && netAdj !== 0) {
+        let parts = [];
+        if (effectiveWind !== 0) parts.push(`Wind: ${effectiveWind >= 0 ? '+' : ''}${effectiveWind}y`);
+        if (effectiveElev !== 0) parts.push(`Elev: ${effectiveElev >= 0 ? '+' : ''}${effectiveElev}y`);
+        if (lieAdj !== 0) parts.push(`Lie (${lieSpec.name}): +${lieAdj}y`);
+        badgeEl.textContent = `${parts.join(' | ')} (Net: ${netAdj >= 0 ? '+' : ''}${netAdj}y)`;
+        badgeEl.style.color = 'var(--p3-color)';
+      } else if (!isPacesMode) {
+        badgeEl.textContent = `Lie: ${lieSpec.name} (Calm / Level)`;
+        badgeEl.style.color = 'var(--accent)';
+      } else {
+        badgeEl.textContent = `Short Game • Lie: ${lieSpec.name}`;
+        badgeEl.style.color = 'var(--accent)';
+      }
+
+      if (isPacesMode) {
+        document.getElementById('advPlaysLikeText').textContent = `${rawDist} Paces (~${baseRawYards} Yards)`;
+      } else {
+        document.getElementById('advPlaysLikeText').textContent = `${playingYards} Yards (~${playingPaces} Paces)`;
+      }
+
+      const fullBtn = document.getElementById('tabBtn-full');
+      const partialBtn = document.getElementById('tabBtn-partial');
+      const chipBtn = document.getElementById('tabBtn-chipping');
+      const puttBtn = document.getElementById('tabBtn-putting');
+
+      if (isPacesMode) {
+        warningBox.style.display = 'flex';
+        fullBtn.classList.add('disabled-mode');
+        fullBtn.title = "Switch to Long Game for Full Shots";
+        partialBtn.classList.add('disabled-mode');
+        partialBtn.title = "Switch to Long Game for Partial Matrix";
+        chipBtn.classList.remove('disabled-mode');
+        chipBtn.title = "";
+        puttBtn.classList.remove('disabled-mode');
+        puttBtn.title = "";
+      } else {
+        warningBox.style.display = 'none';
+        fullBtn.classList.remove('disabled-mode');
+        fullBtn.title = "";
+        partialBtn.classList.remove('disabled-mode');
+        partialBtn.title = "";
+        chipBtn.classList.add('disabled-mode');
+        chipBtn.title = "Switch to Short Game for Chipping";
+        puttBtn.classList.add('disabled-mode');
+        puttBtn.title = "Switch to Short Game for Putting";
+      }
+
+      const list = document.getElementById('advisorCardsList');
+      list.innerHTML = '';
+      const cards = [];
+
+      // Helper function to format delta
+      function formatDeltaBadge(optionDistance, targetDistance, unit = isPacesMode ? 'p' : 'y') {
+        const diff = optionDistance - targetDistance;
+        if (diff === 0) return `<span class="delta-badge delta-exact">Pin-high (±0${unit})</span>`;
+        if (diff > 0) return `<span class="delta-badge delta-long">+${diff}${unit} long</span>`;
+        return `<span class="delta-badge delta-short">${diff}${unit} short</span>`;
+      }
+
+      // PACES MODE: Green-side shots ONLY (Putt & Chip)
+      if (isPacesMode) {
+        // A. Texas Wedge / Putt (Ground roll)
+        // If on the green, putting is always valid regardless of distance (e.g. 45+ pace lag putts).
+        // If off the green (fringe/fairway), allow Texas Wedge ground roll up to 45 paces.
+        const isGreen = lieKey === 'green';
+        const isFringe = lieKey === 'fringe';
+        const maxPuttYards = isGreen ? 150 : (isFringe ? 45 : 35);
+
+        if (lieSpec.allowsPutt && playingYards <= maxPuttYards) {
+          const puttPaces = rawDist;
+          const puttFeet = Math.round(puttPaces * 3);
+          const isLagPutt = isGreen && puttPaces >= 20;
+
+          let puttLabel = isGreen 
+            ? (isLagPutt ? 'On Green Long Lag Putt' : 'On Green Pure Roll') 
+            : (isFringe ? 'Texas Wedge through Fringe' : 'Texas Wedge / Ground Putt');
+
+          let puttMetrics = '';
+          if (isGreen) {
+            puttMetrics = isLagPutt
+              ? `Mega lag stroke (~${puttFeet} ft) &bull; Wide pendulum sweep &bull; Focus purely on pace into a 3-ft target circle`
+              : `Smooth pendulum cadence &bull; Zero chunk hazard &bull; Pure surface roll`;
+          } else if (isFringe) {
+            puttMetrics = `Roll through collar &bull; Add +15% stroke effort to clear fringe resistance`;
+          } else {
+            puttMetrics = `Direct ground roll &bull; Eliminates leading edge chunk risk`;
+          }
+
+          cards.push({
+            type: 'opt-putt', tag: 'tag-putt',
+            label: puttLabel,
+            title: `Putter (${puttPaces} Paces / ~${puttFeet} ft)`,
+            deltaHtml: formatDeltaBadge(puttPaces, puttPaces, 'p'),
+            metrics: puttMetrics,
+            desc: `Tap to open 76 BPM silent cadence metronome`,
+            targetTab: 'putting',
+            params: { paces: puttPaces }
+          });
+        }
+
+        // B. Green-side Runyan / Pitch-and-Run Chip (Skip if on green)
+        if (lieKey !== 'green') {
+          const landingBuffer = 2; // standard 2 paces onto green past collar
+          const minSafeCarry = Math.min(rawDist - 1, offGreenPaces + landingBuffer);
+
+          // In rough, filter out low lofts that catch grass (3H through 7i)
+          let availableClubs = CHIP_CLUBS;
+          if (lieKey === 'deep_rough') {
+            availableClubs = CHIP_CLUBS.filter(c => ['PW', '52', '56'].includes(c.id));
+          } else if (lieKey === 'rough') {
+            availableClubs = CHIP_CLUBS.filter(c => !['3H', '4H', '5i', '6i', '7i'].includes(c.id));
+          }
+
+          // Target ratio needed to land at safe collar buffer (offGreen + buffer)
+          const rollNeeded = Math.max(1, rawDist - minSafeCarry);
+          const targetRatio = rollNeeded / minSafeCarry;
+
+          let bestChip = availableClubs[0] || CHIP_CLUBS[0];
+          let minRatioDiff = 999;
+
+          availableClubs.forEach(c => {
+            const effectiveRatio = c.rollRatio * turfMultiplier;
+            const ratioDiff = Math.abs(effectiveRatio - targetRatio);
+            if (ratioDiff < minRatioDiff) {
+              minRatioDiff = ratioDiff;
+              bestChip = c;
+            }
+          });
+
+          const bestEffectiveRatio = bestChip.rollRatio * turfMultiplier;
+          const idealCarry = Math.round(rawDist / (1 + bestEffectiveRatio));
+          const bestCarry = Math.min(rawDist - 1, Math.max(minSafeCarry, idealCarry));
+          const bestRoll = Math.max(1, Math.round(bestCarry * bestEffectiveRatio));
+          const bestTotal = bestCarry + bestRoll;
+
+          const chipDelta = bestTotal - rawDist;
+          let chipDeltaBadge = '';
+          if (chipDelta === 0) chipDeltaBadge = '<span class="delta-badge delta-exact">Pin-high (±0p)</span>';
+          else if (chipDelta > 0) chipDeltaBadge = `<span class="delta-badge delta-long">+${chipDelta}p long</span>`;
+          else chipDeltaBadge = `<span class="delta-badge delta-short">${chipDelta}p short</span>`;
+
+          const bufferOntoGreen = Math.max(1, bestCarry - offGreenPaces);
+          const chipMetrics = (lieKey === 'rough' || lieKey === 'deep_rough')
+            ? `Fly ${bestCarry}p (${offGreenPaces}p rough + ${bufferOntoGreen}p onto green) &bull; ${lieSpec.cue}`
+            : `Fly ${bestCarry}p (${offGreenPaces}p off-green + ${bufferOntoGreen}p onto green) &rarr; roll ${bestRoll}p to pin`;
+
+          cards.push({
+            type: 'opt-chip', tag: 'tag-chip', label: `Chipping (${lieSpec.name})`,
+            title: `${bestChip.name} Chip (${bestTotal} Paces total)`,
+            deltaHtml: chipDeltaBadge,
+            metrics: chipMetrics,
+            desc: `Tap to view landing spot and full club comparison &rarr;`,
+            targetTab: 'chipping',
+            params: { total: rawDist, offGreen: offGreenPaces }
+          });
+        }
+      } else {
+        // YARDS MODE: Approach shots ONLY (P2 runners, P3 pitches, Full swings)
+        // C. P2 Hip-High Runners (Shaft parallel at 8:00, passive wrists) - Fairway/Fringe only
+        if (lieSpec.allowsP2) {
+          CLUB_SPECS.forEach(c => {
+            const full = userState.clubs[c.id] || 100;
+            const fly = Math.round(full * c.p2c);
+            const roll = Math.max(1, Math.round(fly * c.p2r * turfMultiplier));
+            const total = fly + roll;
+            if (Math.abs(total - playingYards) <= 9) {
+              cards.push({
+                type: 'opt-p2', tag: 'tag-p2', label: 'P2 Low Runner (Hip-High)',
+                title: `${c.name} (${total} yds total)`,
+                deltaHtml: formatDeltaBadge(total, playingYards),
+                metrics: `Carry ${fly} yds + Roll ${roll} yds &bull; Single-lever strike`,
+                desc: `Tap to inspect ${c.name} in partial matrix`,
+                targetTab: 'partial',
+                params: { highlightClubId: c.id }
+              });
+            }
+          });
+        }
+
+        // D. P3 Half-Swing Aerial Pitch (90° wrist hinge at 9:00)
+        CLUB_SPECS.forEach(c => {
+          const full = userState.clubs[c.id] || 100;
+          const fly = Math.round(full * c.p3c);
+          const roll = Math.max(1, Math.round(fly * c.p3r * turfMultiplier));
+          const total = fly + roll;
+          if (Math.abs(total - playingYards) <= 10) {
+            cards.push({
+              type: 'opt-p3', tag: 'tag-p3', label: 'P3 Aerial Pitch (Half-Swing)',
+              title: `${c.name} (${total} yds total)`,
+              deltaHtml: formatDeltaBadge(total, playingYards),
+              metrics: `Carry ${fly} yds + Roll ${roll} yds &bull; ${lieKey === 'rough' || lieKey === 'deep_rough' ? lieSpec.cue : 'Aerodynamic bite'}`,
+              desc: `Tap to inspect ${c.name} in partial matrix`,
+              targetTab: 'partial',
+              params: { highlightClubId: c.id }
+            });
+          }
+        });
+
+        // E. Full Approach Swing
+        CLUB_SPECS.forEach(c => {
+          const full = userState.clubs[c.id] || 100;
+          if (Math.abs(full - playingYards) <= 9) {
+            cards.push({
+              type: 'opt-full', tag: 'tag-full', label: `Full Swing (${lieSpec.name})`,
+              title: `${c.name} Full (${full} yds stock)`,
+              deltaHtml: formatDeltaBadge(full, playingYards),
+              metrics: `${lieKey === 'rough' || lieKey === 'deep_rough' ? lieSpec.cue : 'Full apex carry & maximum stopping power'}`,
+              desc: `Tap to inspect in full shot matrix`,
+              targetTab: 'full',
+              params: { highlightClubId: c.id }
+            });
+          }
+        });
+      }
+
+      if (cards.length === 0) {
+        list.innerHTML = `
+          <div style="background:#111c2e; border:1px solid var(--card-border); border-radius:8px; color:var(--text-muted); font-size:0.85rem; padding:16px;">
+            ${isPacesMode 
+              ? 'Distance exceeds typical green-side range. Switch to Long Game (Yards) above for full and partial approach shots.' 
+              : (playingYards < 25
+                  ? 'Target is under 25 yards. Switch to Short Game (Paces) above to view green-side chipping and putting options.'
+                  : 'No direct stock match within &plusmn;9 yds of effective target. Consider choking down 1 inch or taking a 3/4 punch.')}
+          </div>`;
+        return;
+      }
+
+      // Render contextual options
+      cards.slice(0, 6).forEach(c => {
+        const div = document.createElement('div');
+        div.className = `option-card ${c.type}`;
+        div.innerHTML = `
+          <div class="opt-header-line">
+            <span class="badge-tag ${c.tag}">${c.label}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${c.deltaHtml}
+              <span class="opt-click-hint">Setup &rarr;</span>
+            </div>
+          </div>
+          <div class="opt-title">${c.title}</div>
+          <div class="opt-metrics">${c.metrics}</div>
+          <div class="opt-desc">${c.desc}</div>
+        `;
+        div.addEventListener('click', () => routeTo(c.targetTab, c.params));
+        list.appendChild(div);
+      });
+    }
+
+    // 2. Metronome Engine (76 BPM = 789ms interval, 2:1 ratio)
+    let cadenceActive = false;
+    let cadenceTimer = null;
+    let audioCtx = null;
+
+    function playAudioTick() {
+      if (!userState.soundEnabled) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // 880 Hz crisp wood-block tick
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (err) {
+        console.warn('Audio tick error', err);
+      }
+    }
+
+    // Explicit test function for Pixel 8
+    function testPixelVibrationDirectly() {
+      const diagEl = document.getElementById('vibeDiagnosticText');
+      if (!("vibrate" in navigator)) {
+        diagEl.textContent = "❌ navigator.vibrate API is not available on this browser/context.";
+        diagEl.style.color = "#f43f5e";
+        return;
+      }
+      try {
+        // Strong 120ms pulse for Pixel haptic actuator
+        const result = navigator.vibrate([120]);
+        if (result === false) {
+          diagEl.textContent = "⚠️ Chrome blocked vibrate(). Ensure Touch Feedback is ON in Pixel Settings & page is served over HTTP/HTTPS.";
+          diagEl.style.color = "#f59e0b";
+        } else {
+          diagEl.textContent = "✅ Pulse sent to device! (Did you feel it? If not, check Android Vibration & Haptics settings)";
+          diagEl.style.color = "#34d399";
+        }
+      } catch (e) {
+        diagEl.textContent = "❌ Vibration call error: " + e.message;
+        diagEl.style.color = "#f43f5e";
+      }
+    }
+
+    // Putting Engine & Live Shot-Selector Sync
+    function renderPutting(customPaces = null) {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      const isPacesMode = userState.gameMode === 'short';
+      const rawDist = sanitizeNumber(document.getElementById('advInputDist')?.value, isPacesMode ? 25 : 75, 1, 350);
+      const ratio = userState.paceRatio || 0.90;
+
+      let targetPaces = customPaces;
+      if (targetPaces === null || targetPaces === undefined) {
+        if (isPacesMode) {
+          targetPaces = rawDist;
+        } else {
+          // In yards mode, convert target yards to walking paces
+          targetPaces = Math.max(1, Math.round(rawDist / ratio));
+        }
+      }
+
+      const feet = Math.round(targetPaces * 3);
+      const yards = Math.round(targetPaces * ratio);
+
+      const displayEl = document.getElementById('puttActivePacesDisplay');
+      if (displayEl) {
+        displayEl.textContent = `${targetPaces} Paces (~${feet} ft / ~${yards}y)`;
+      }
+
+      const guideEl = document.getElementById('puttStrokeGuide');
+      if (guideEl) {
+        if (targetPaces <= 3) {
+          guideEl.textContent = `Short Range (${targetPaces}p / ~${feet} ft): 3-4 inch compact backstroke. Keep lead wrist flat and hold finish.`;
+        } else if (targetPaces <= 7) {
+          guideEl.textContent = `Medium Range (${targetPaces}p / ~${feet} ft): 6-8 inch backstroke (inside trail foot). Accelerate smoothly with 76 BPM beat.`;
+        } else if (targetPaces <= 12) {
+          guideEl.textContent = `Long Range (${targetPaces}p / ~${feet} ft): 10-12 inch backstroke (outside trail foot). Focus purely on distance touch.`;
+        } else {
+          guideEl.textContent = `Lag Distance (${targetPaces}p / ~${feet} ft): Wide shoulder-driven sweep. Focus on speed into a 3-foot radius target zone.`;
+        }
+      }
+    }
+
+    function triggerCadencePulse() {
+      // 1. Android / Pixel 8 Haptics: 100ms array pulse
+      if ("vibrate" in navigator) {
+        try {
+          navigator.vibrate([100]);
+        } catch (e) {}
+      }
+      // 2. Audio tick synthesizer fallback
+      playAudioTick();
+
+      // 3. Visual pulse ring
+      const ring = document.getElementById('vibeRing');
+      ring.classList.add('vibe');
+      setTimeout(() => ring.classList.remove('vibe'), 100);
+    }
+
+    function toggleCadenceMetronome() {
+      const btn = document.getElementById('vibeToggleBtn');
+      if (cadenceActive) {
+        clearInterval(cadenceTimer);
+        cadenceActive = false;
+        btn.innerHTML = "<span>▶</span> Start Metronome";
+        btn.classList.remove('active-vibe');
+      } else {
+        cadenceActive = true;
+        btn.innerHTML = "<span>⏹</span> Stop Metronome";
+        btn.classList.add('active-vibe');
+        triggerCadencePulse();
+        // 76 BPM = 60000ms / 76 = 789.47ms
+        cadenceTimer = setInterval(triggerCadencePulse, 789);
+      }
+    }
+
+    function toggleAudioPreference(enabled) {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      userState.soundEnabled = Boolean(enabled);
+      saveState();
+      if (userState.soundEnabled && !audioCtx) {
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        } catch (e) {}
+      }
+    }
+
+    // 3. Chipping Engine (Runyan / Rule of 12 with Landing Runway & Club Matrix)
+    function renderChipping() {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      const isPaces = userState.unit === 'paces';
+      const uLabel = isPaces ? 'paces' : 'yds';
+      const uChar = isPaces ? 'p' : 'y';
+
+      const chipTotInput = document.getElementById('chipDistTotal');
+      const chipOffInput = document.getElementById('chipDistOffGreen');
+
+      let rawOffGreen = sanitizeNumber(chipOffInput?.value, 7, 0, 100);
+      const minTotalAllowed = Math.max(2, rawOffGreen + 1);
+      let rawTotal = sanitizeNumber(chipTotInput?.value, 25, 2, 100);
+
+      const total = Math.max(minTotalAllowed, rawTotal);
+      const offGreen = Math.min(total - 1, rawOffGreen);
+
+      if (chipTotInput) chipTotInput.min = minTotalAllowed;
+      if (chipOffInput) chipOffInput.max = Math.max(0, total - 1);
+      const buffer = sanitizeNumber(document.getElementById('chipBuffer')?.value, 2, 1, 15);
+      const greenSpeedMult = sanitizeNumber(document.getElementById('chipFirmSelect')?.value, 1.0, 0.5, 2.0);
+
+      // Minimum safe carry required: must clear off-green distance + land onto the green by buffer
+      const minSafeCarry = Math.min(total - 1, offGreen + buffer);
+
+      // Read active lie to bias recommendations if in rough
+      const lieKey = document.getElementById('advLieSelect')?.value || 'fairway';
+      let candidateClubs = CHIP_CLUBS;
+      if (lieKey === 'deep_rough') {
+        candidateClubs = CHIP_CLUBS.filter(c => ['PW', '52', '56'].includes(c.id));
+      } else if (lieKey === 'rough') {
+        candidateClubs = CHIP_CLUBS.filter(c => !['3H', '4H', '5i', '6i', '7i'].includes(c.id));
+      }
+
+      // Target ratio needed to land at safe collar buffer (offGreen + buffer)
+      const rollNeeded = Math.max(1, total - minSafeCarry);
+      const targetRatio = rollNeeded / minSafeCarry;
+
+      let bestClub = candidateClubs[0] || CHIP_CLUBS[0];
+      let minRatioDiff = 999;
+
+      candidateClubs.forEach(c => {
+        const effectiveRatio = c.rollRatio * greenSpeedMult;
+        const ratioDiff = Math.abs(effectiveRatio - targetRatio);
+        if (ratioDiff < minRatioDiff) {
+          minRatioDiff = ratioDiff;
+          bestClub = c;
+        }
+      });
+
+      const bestEffectiveRatio = bestClub.rollRatio * greenSpeedMult;
+      const idealCarry = Math.round(total / (1 + bestEffectiveRatio));
+      const bestCarry = Math.min(total - 1, Math.max(minSafeCarry, idealCarry));
+      const bestRoll = Math.max(1, Math.round(bestCarry * bestEffectiveRatio));
+      const bestTotal = bestCarry + bestRoll;
+
+      const bestDelta = bestTotal - total;
+      const bestBufferOntoGreen = Math.max(1, bestCarry - offGreen);
+
+      // Update unit labels
+      const unitBadge = document.getElementById('chipUnitBadge');
+      if (unitBadge) unitBadge.textContent = isPaces ? 'Paces Mode' : 'Yards Mode';
+      const totalLbl = document.getElementById('chipTotalLabel');
+      if (totalLbl) totalLbl.textContent = `Total Distance to Pin (${uLabel})`;
+      const offGreenLbl = document.getElementById('chipOffGreenLabel');
+      if (offGreenLbl) offGreenLbl.textContent = `Distance Off Green (${uLabel})`;
+      const bufferLbl = document.getElementById('chipBufferLabel');
+      if (bufferLbl) bufferLbl.textContent = `Safe Buffer onto Green (${uLabel})`;
+
+      // Update 3-stage visual runway
+      const stageCollar = document.getElementById('stageCollarVal');
+      if (stageCollar) stageCollar.textContent = `${offGreen} ${uLabel}`;
+      const stageLanding = document.getElementById('stageLandingVal');
+      if (stageLanding) stageLanding.textContent = `${bestCarry} ${uLabel} fly`;
+      const stageBufferDesc = document.getElementById('stageBufferDesc');
+      if (stageBufferDesc) stageBufferDesc.textContent = `${bestBufferOntoGreen} ${uLabel} onto green`;
+      const stageRoll = document.getElementById('stageRollVal');
+      if (stageRoll) stageRoll.textContent = `${bestRoll} ${uLabel} roll`;
+      const stageTotalDesc = document.getElementById('stageTotalDesc');
+      if (stageTotalDesc) stageTotalDesc.textContent = `To cup (${bestTotal} ${uLabel})`;
+
+      const recClubDisplay = document.getElementById('chipRecClubDisplay');
+      if (recClubDisplay) {
+        recClubDisplay.textContent = `${bestClub.name} (${bestClub.ratioLabel} Roll)`;
+      }
+
+      const recDetails = document.getElementById('chipRecDetails');
+      if (recDetails) {
+        let deltaText = 'pin-high';
+        if (bestDelta > 0) deltaText = `+${bestDelta} ${uLabel} long`;
+        else if (bestDelta < 0) deltaText = `${bestDelta} ${uLabel} short`;
+
+        recDetails.textContent =
+          `Fly ${bestCarry} ${uLabel} (clears ${offGreen} ${uLabel} fringe + lands ${bestBufferOntoGreen} ${uLabel} on green) → releases ~${bestRoll} ${uLabel} to hole (${bestTotal} ${uLabel} total, ${deltaText}).`;
+      }
+
+      // Render Comparison Table
+      const tb = document.getElementById('chipTableBody');
+      if (!tb) return;
+      tb.innerHTML = '';
+
+      CHIP_CLUBS.forEach(c => {
+        const effectiveRatio = c.rollRatio * greenSpeedMult;
+        const idealCarry = Math.round(total / (1 + effectiveRatio));
+        const actualCarry = Math.min(total - 1, Math.max(minSafeCarry, idealCarry));
+        const actualRoll = Math.max(1, Math.round(actualCarry * effectiveRatio));
+        const tot = actualCarry + actualRoll;
+        const diff = tot - total;
+
+        let deltaBadge = '';
+        if (diff === 0) deltaBadge = `<span class="delta-badge delta-exact">Pin-high (±0${uChar})</span>`;
+        else if (diff > 0) deltaBadge = `<span class="delta-badge delta-long">+${diff}${uChar} long</span>`;
+        else deltaBadge = `<span class="delta-badge delta-short">${diff}${uChar} short</span>`;
+
+        const tr = document.createElement('tr');
+        if (c.id === bestClub.id) tr.className = 'highlighted';
+
+        tr.innerHTML = `
+          <td class="club-col">${c.name}</td>
+          <td style="color:var(--text-muted); font-weight:700;">${c.ratioLabel}</td>
+          <td style="color:var(--chip-color); font-weight:700;">${actualCarry}${uChar}</td>
+          <td>${actualRoll}${uChar}</td>
+          <td style="font-weight:700; color:#cbd5e1;">${tot}${uChar}</td>
+          <td>${deltaBadge}</td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    // 4. Partial Matrix Render
+    function renderMatrix(highlightClubId = null) {
+      const tb = document.getElementById('matrixTableBody');
+      tb.innerHTML = '';
+      const turfMultiplier = TURF_MULTIPLIERS[userState.turfCondition] || 1.0;
+
+      CLUB_SPECS.forEach(c => {
+        const full = userState.clubs[c.id] || 100;
+        const p2c = Math.round(full * c.p2c);
+        const p2r = Math.max(1, Math.round(p2c * c.p2r * turfMultiplier));
+        const p2t = p2c + p2r;
+
+        const p3c = Math.round(full * c.p3c);
+        const p3r = Math.max(1, Math.round(p3c * c.p3r * turfMultiplier));
+        const p3t = p3c + p3r;
+
+        const tr = document.createElement('tr');
+        if (c.id === highlightClubId) tr.className = 'highlighted';
+
+        tr.innerHTML = `
+          <td class="club-col">${c.name}</td>
+          <td style="color:#cbd5e1; font-weight:700;">${full}</td>
+          <td>${p2c}</td><td>${p2r}</td><td style="color:var(--p2-color); font-weight:700;">${p2t}y</td>
+          <td>${p3c}</td><td>${p3r}</td><td style="color:var(--p3-color); font-weight:700;">${p3t}y</td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    // 5. Full Shots Logic (Full Shot Matrix mirroring Partial Matrix, driven by Shot Selector)
+    function renderFull(highlightClubId = null) {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      const rawDist = sanitizeNumber(document.getElementById('advInputDist').value, 75, 1, 350);
+      const unit = userState.unit || 'yards';
+      const lieKey = document.getElementById('advLieSelect')?.value || 'fairway';
+      const lieSpec = LIE_SPECS[lieKey] || LIE_SPECS.fairway;
+      const windAdj = sanitizeNumber(document.getElementById('advWindSelect').value, 0, -30, 40);
+      const elevAdj = sanitizeNumber(document.getElementById('advElevSelect').value, 0, -30, 30);
+      const ratio = userState.paceRatio || 0.90;
+
+      const baseRawYards = unit === 'yards' ? rawDist : Math.round(rawDist * ratio);
+      const isPacesMode = unit === 'paces';
+      const effectiveWind = isPacesMode ? 0 : windAdj;
+      const effectiveElev = isPacesMode ? 0 : elevAdj;
+      const lieAdj = isPacesMode ? 0 : Math.round(baseRawYards * lieSpec.addPct);
+      const netAdj = effectiveWind + effectiveElev + lieAdj;
+      const targetPlaysLike = Math.max(1, Math.round(baseRawYards + netAdj));
+      const targetPaces = Math.round(targetPlaysLike / ratio);
+
+      // Update condition banner in full view
+      const condDisplay = document.getElementById('fullConditionsDisplay');
+      const condBreakdown = document.getElementById('fullConditionsBreakdown');
+      if (condDisplay) {
+        condDisplay.textContent = `${baseRawYards}y Target → ${targetPlaysLike}y Plays-Like (~${targetPaces} Paces)`;
+      }
+      if (condBreakdown) {
+        if (!isPacesMode && netAdj !== 0) {
+          let parts = [];
+          if (effectiveWind !== 0) parts.push(`Wind: ${effectiveWind >= 0 ? '+' : ''}${effectiveWind}y`);
+          if (effectiveElev !== 0) parts.push(`Elev: ${effectiveElev >= 0 ? '+' : ''}${effectiveElev}y`);
+          if (lieAdj !== 0) parts.push(`Lie (${lieSpec.name}): +${lieAdj}y`);
+          condBreakdown.textContent = `${parts.join(' | ')} (Net: ${netAdj >= 0 ? '+' : ''}${netAdj}y)`;
+          condBreakdown.style.color = 'var(--p3-color)';
+        } else {
+          condBreakdown.textContent = isPacesMode ? 'Short Game (flat green-side)' : `Lie: ${lieSpec.name} (Calm / Level)`;
+          condBreakdown.style.color = 'var(--accent)';
+        }
+      }
+
+      // Auto-detect closest club if none specified
+      let bestClubId = highlightClubId;
+      if (!bestClubId) {
+        let minDiff = 999;
+        CLUB_SPECS.forEach(c => {
+          const stock = userState.clubs[c.id] || 100;
+          const diff = Math.abs(stock - targetPlaysLike);
+          if (diff < minDiff) {
+            minDiff = diff;
+            bestClubId = c.id;
+          }
+        });
+      }
+
+      const tb = document.getElementById('fullTableBody');
+      if (!tb) return;
+      tb.innerHTML = '';
+
+      CLUB_SPECS.forEach(c => {
+        const stock = userState.clubs[c.id] || 100;
+        // Effective ground reach of this club under current environmental factors
+        const effReach = Math.max(1, stock - netAdj);
+        const diff = effReach - baseRawYards;
+
+        let deltaBadge = '';
+        if (diff === 0) {
+          deltaBadge = '<span class="delta-badge delta-exact">Pin-high (±0y)</span>';
+        } else if (diff > 0) {
+          deltaBadge = `<span class="delta-badge delta-long">+${diff}y long</span>`;
+        } else {
+          deltaBadge = `<span class="delta-badge delta-short">${diff}y short</span>`;
+        }
+
+        let envText = '<span style="color:var(--text-muted)">0y</span>';
+        if (netAdj > 0) {
+          envText = `<span style="color:#f43f5e">-${netAdj}y</span>`;
+        } else if (netAdj < 0) {
+          envText = `<span style="color:#34d399">+${Math.abs(netAdj)}y</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        if (c.id === bestClubId) tr.className = 'highlighted';
+
+        tr.innerHTML = `
+          <td class="club-col">${c.name}</td>
+          <td style="color:#cbd5e1; font-weight:700;">${stock}y</td>
+          <td>${envText}</td>
+          <td style="color:var(--full-color); font-weight:800;">${effReach}y</td>
+          <td>${deltaBadge}</td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    // 6. Bag Calibration Modal & Preference Persistence
+    function openCalibrationModal() {
+      document.getElementById('calPwInput').value = userState.pwBaseline;
+      document.getElementById('calPaceRatio').value = userState.paceRatio.toFixed(2);
+
+      const grid = document.getElementById('calClubInputsGrid');
+      grid.innerHTML = '';
+      CLUB_SPECS.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'field-group';
+        div.innerHTML = `
+          <label>${c.name}</label>
+          <input type="number" id="calInput_${c.id}" value="${userState.clubs[c.id] || 100}" min="30" max="280" inputmode="numeric" />
+        `;
+        grid.appendChild(div);
+      });
+
+      document.getElementById('calModal').classList.add('open');
+    }
+
+    function recalibrateFromPw() {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      const pwVal = sanitizeNumber(document.getElementById('calPwInput').value, 110, 60, 180);
+      // Empirical gapping ratios scaled relative to PW (including 4H and 3H)
+      const ratios = {
+        "56": 80 / 110,
+        "52": 95 / 110,
+        "PW": 1.0,
+        "9i": 122 / 110,
+        "8i": 135 / 110,
+        "7i": 147 / 110,
+        "6i": 158 / 110,
+        "5i": 168 / 110,
+        "4H": 180 / 110,
+        "3H": 195 / 110
+      };
+
+      CLUB_SPECS.forEach(c => {
+        const scaled = Math.round(pwVal * (ratios[c.id] || 1.0));
+        const inp = document.getElementById(`calInput_${c.id}`);
+        if (inp) inp.value = scaled;
+      });
+      showToast('Gappings auto-scaled from PW');
+    }
+
+    function saveAndCloseCalibrationModal() {
+      /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+      userState.pwBaseline = sanitizeNumber(document.getElementById('calPwInput').value, 110, 60, 180);
+      userState.paceRatio = sanitizeNumber(document.getElementById('calPaceRatio').value, 0.90, 0.6, 1.4);
+
+      CLUB_SPECS.forEach(c => {
+        const inp = document.getElementById(`calInput_${c.id}`);
+        if (inp) {
+          const fallback = userState.clubs[c.id] || DEFAULT_STATE.clubs[c.id] || 100;
+          userState.clubs[c.id] = sanitizeNumber(inp.value, fallback, 30, 280);
+        }
+      });
+
+      saveState();
+      document.getElementById('calModal').classList.remove('open');
+
+      renderAdvisor();
+      renderMatrix();
+      renderFull();
+    }
+
+    function closeCalibrationModal() {
+      document.getElementById('calModal').classList.remove('open');
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === 'calModal') closeCalibrationModal();
+    }
+
+    function resetToDefaults() {
+      userState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      saveState();
+      openCalibrationModal();
+      renderAdvisor();
+      renderMatrix();
+      renderFull();
+    }
+
+    // Initialize UI and Event Listeners
+    function init() {
+      // Sync saved settings to UI
+      document.getElementById('advTurfSelect').value = userState.turfCondition || 'medium';
+      document.getElementById('metronomeAudioToggle').checked = Boolean(userState.soundEnabled);
+
+      // Initialize global game mode buttons
+      const isShort = userState.gameMode === 'short';
+      const btnLong = document.getElementById('modeBtn-long');
+      const btnShort = document.getElementById('modeBtn-short');
+      if (btnLong && btnShort) {
+        if (isShort) {
+          btnShort.classList.add('active');
+          btnLong.classList.remove('active');
+        } else {
+          btnLong.classList.add('active');
+          btnShort.classList.remove('active');
+        }
+      }
+
+      // Populate lie options according to initial game mode
+      syncLieOptionsForGameMode();
+
+      document.getElementById('advTurfSelect').addEventListener('change', (e) => {
+        userState.turfCondition = e.target.value;
+        saveState();
+      });
+
+      // Real-time boundary clamping: total distance must never be less than distance off green
+      const advDistEl = document.getElementById('advInputDist');
+      const advOffGreenEl = document.getElementById('advInputOffGreen');
+
+      if (advDistEl) {
+        advDistEl.addEventListener('change', () => {
+          if (userState.gameMode === 'short') {
+            const lieKey = document.getElementById('advLieSelect')?.value || 'fairway';
+            if (lieKey !== 'green') {
+              const offVal = parseFloat(advOffGreenEl?.value) || 0;
+              const minVal = Math.max(2, Math.round(offVal) + 1);
+              if (parseFloat(advDistEl.value) < minVal) {
+                advDistEl.value = minVal;
+              }
+            }
+          }
+        });
+      }
+
+      if (advOffGreenEl) {
+        advOffGreenEl.addEventListener('change', () => {
+          if (userState.gameMode === 'short') {
+            const lieKey = document.getElementById('advLieSelect')?.value || 'fairway';
+            if (lieKey !== 'green') {
+              const totalVal = parseFloat(advDistEl?.value) || 25;
+              const maxVal = Math.max(0, Math.round(totalVal) - 1);
+              if (parseFloat(advOffGreenEl.value) > maxVal) {
+                advOffGreenEl.value = maxVal;
+              }
+            }
+          }
+        });
+      }
+
+      const chipTotEl = document.getElementById('chipDistTotal');
+      const chipOffEl = document.getElementById('chipDistOffGreen');
+
+      if (chipTotEl) {
+        chipTotEl.addEventListener('change', () => {
+          const offVal = parseFloat(chipOffEl?.value) || 0;
+          const minVal = Math.max(2, Math.round(offVal) + 1);
+          if (parseFloat(chipTotEl.value) < minVal) {
+            chipTotEl.value = minVal;
+          }
+        });
+      }
+
+      if (chipOffEl) {
+        chipOffEl.addEventListener('change', () => {
+          const totalVal = parseFloat(chipTotEl?.value) || 25;
+          const maxVal = Math.max(0, Math.round(totalVal) - 1);
+          if (parseFloat(chipOffEl.value) > maxVal) {
+            chipOffEl.value = maxVal;
+          }
+        });
+      }
+
+      ['advInputDist', 'advInputOffGreen', 'advLieSelect', 'advTurfSelect', 'advWindSelect', 'advElevSelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => { renderAdvisor(); renderFull(); renderPutting(); });
+          el.addEventListener('change', () => { renderAdvisor(); renderFull(); renderPutting(); });
+        }
+      });
+
+      ['chipDistTotal', 'chipDistOffGreen', 'chipBuffer', 'chipFirmSelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', renderChipping);
+          el.addEventListener('change', renderChipping);
+        }
+      });
+
+      // Initial renders
+      renderAdvisor();
+      renderChipping();
+      renderMatrix();
+      renderFull();
+      renderPutting();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
