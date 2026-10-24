@@ -241,6 +241,42 @@
     .opt-metrics { font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; font-weight: 500; }
     .opt-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px; }
 
+    /* Tactical Option Trajectory Graphic */
+    .opt-traj-box {
+      background: #090e17;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 8px 10px 4px 10px;
+      margin-top: 8px;
+      margin-bottom: 6px;
+    }
+    .opt-traj-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .opt-traj-tag {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .opt-traj-stats {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .opt-traj-svg {
+      width: 100%;
+      height: 54px;
+      display: block;
+    }
+
     /* Visual Ratio Chipping Presets (10% to Max Carry) */
     .ratio-presets-grid {
       display: grid;
@@ -460,7 +496,10 @@
     <!-- 1. SHOT SELECTOR (MAIN SCREEN) -->
     <section id="view-advisor" class="view-panel active">
       <div class="card">
-        <div class="card-title">Shot Target & Conditions</div>
+        <div class="card-title">
+          <span>Shot Target &amp; Conditions</span>
+          <button class="gear-btn" onclick="resetShotConditions()" title="Reset distance, lie, turf, wind, and elevation">↺ Reset Shot</button>
+        </div>
         <div class="grid-row">
           <div class="field-group">
             <label for="advInputDist" id="advDistLabel">Target Distance (Yards)</label>
@@ -602,19 +641,19 @@
       </div>
     </section>
 
-    <!-- 4. CHIPPING DETAIL VIEW (Visual Carry-to-Roll Ratio Presets) -->
+    <!-- 4. CHIPPING DETAIL VIEW (Club Carry-to-Roll Selector) -->
     <section id="view-chipping" class="view-panel">
       <div class="back-btn-bar">
         <button class="back-btn" onclick="routeTo('advisor')">← Back to Shot Selector</button>
       </div>
       <div class="card">
         <div class="card-title">
-          <span>Visual Carry-to-Roll Chip Menu</span>
-          <span class="badge-tag tag-chip">Zero-Pacing Ratio Mode</span>
+          <span>Club Carry-to-Roll Chipping</span>
+          <span class="badge-tag tag-chip">Normal Chip Mode</span>
         </div>
 
         <p style="font-size:0.76rem; color:var(--text-muted); margin-bottom:12px;">
-          Eyeball where your safe landing spot (just onto the green) sits as a percentage of total distance to the cup, then tap that Carry % below.
+          Tap any club below to view its natural normal-chip carry vs roll proportion, landing runway, and setup feel.
         </p>
 
         <div class="grid-row">
@@ -622,8 +661,8 @@
             <label for="chipLieSelect">Greenside Lie</label>
             <select id="chipLieSelect">
               <option value="fairway" selected>Clean / Fringe Collar</option>
-              <option value="rough">Light Rough (No low irons)</option>
-              <option value="deep_rough">Heavy Rough (Wedges only)</option>
+              <option value="rough">Light Rough (+15% roll)</option>
+              <option value="deep_rough">Heavy Rough (+25% roll)</option>
             </select>
           </div>
           <div class="field-group">
@@ -636,37 +675,37 @@
           </div>
         </div>
 
-        <!-- 10% to Max (90%) Carry Preset Grid -->
+        <!-- Club Selection Grid (Normal Chip) -->
         <div class="card-title" style="margin-top:16px; margin-bottom:4px;">
-          <span>Select Carry % to Landing Spot (10% &rarr; Max)</span>
+          <span>Select Club (Normal Chip Carry vs Roll)</span>
         </div>
-        <div class="ratio-presets-grid" id="chipRatioPresetsGrid"></div>
+        <div class="ratio-presets-grid" id="chipClubButtonsGrid"></div>
 
-        <!-- Visual Proportion Bar -->
+        <!-- Visual Proportion Runway Bar -->
         <div class="visual-runway-wrap">
           <div class="runway-labels">
-            <span style="color:var(--chip-color);" id="chipCarryBannerText">✈️ Carry 30% (Over Fringe)</span>
-            <span style="color:var(--roll-color);" id="chipRollBannerText">⛳ Roll 70% (To Hole)</span>
+            <span style="color:var(--chip-color);" id="chipCarryBannerText">✈️ Carry 30% (To Landing Spot)</span>
+            <span style="color:var(--roll-color);" id="chipRollBannerText">⛳ Roll 70% (Release to Cup)</span>
           </div>
           <div class="runway-bar-large">
             <div class="runway-carry-fill" id="chipVisualCarryFill" style="width: 30%;"></div>
           </div>
           <div class="runway-markers">
             <span>Ball</span>
-            <span style="color:#fff;" id="chipLandingSpotMarker">🎯 Land 30% of the way</span>
+            <span style="color:#fff;" id="chipLandingSpotMarker">🎯 Land 30% of total distance</span>
             <span>Cup (100%)</span>
           </div>
         </div>
 
         <!-- Primary Recommendation Card -->
         <div style="background:#090e17; padding:14px; border-radius:8px; margin-top:14px; border-left:4px solid var(--chip-color);">
-          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Recommended Club &amp; Setup</div>
-          <div style="font-size:1.35rem; font-weight:800; color:#fff; margin-top:2px;" id="chipRecClubDisplay">9 Iron (30% Carry / 70% Roll)</div>
+          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Selected Club &amp; Trajectory</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#fff; margin-top:2px;" id="chipRecClubDisplay">8 Iron — Normal Chip</div>
           <div style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;" id="chipRecDetails">
-            Land ~1/3 of the way to the hole; ball releases the remaining ~2/3 to the cup.
+            Land ~30% of the distance to the hole; ball releases the remaining ~70% to the cup.
           </div>
           <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;" id="chipRecCue">
-            <strong>Mechanical Cue:</strong> Weight 60% lead foot, hands slightly ahead, passive wrists, rotate chest through.
+            <strong>Normal Chip Cue:</strong> Weight 60% lead foot, hands slightly ahead, quiet wrists, rotate chest smoothly through impact.
           </div>
         </div>
 
@@ -680,7 +719,7 @@
                 <th>Stock Ratio</th>
                 <th style="color:var(--chip-color)">Carry %</th>
                 <th style="color:var(--roll-color)">Roll %</th>
-                <th>Best Use Case</th>
+                <th>Typical Release Pattern</th>
               </tr>
             </thead>
             <tbody id="chipTableBody"></tbody>
@@ -792,37 +831,24 @@
       }
     };
 
-    // Chipping clubs calibrated across the 10% to 80%+ Carry spectrum
+    // Chipping clubs: Ordered from 3 Hybrid up to 56° SW
     const CHIP_CLUBS = [
-      { id: "3H", name: "3 Hybrid", ratioLabel: "1:9",   rollRatio: 9.00, useCase: "Just on fringe, massive green run (~10% fly)" },
-      { id: "4H", name: "4 Hybrid", ratioLabel: "1:6.5", rollRatio: 6.50, useCase: "Collar bump across large green (~13% fly)" },
-      { id: "5i", name: "5 Iron",   ratioLabel: "1:5",   rollRatio: 5.00, useCase: "Low running links chip (~17% fly)" },
-      { id: "6i", name: "6 Iron",   ratioLabel: "1:4",   rollRatio: 4.00, useCase: "1/5 carry, 4/5 rollout (~20% fly)" },
-      { id: "7i", name: "7 Iron",   ratioLabel: "1:3",   rollRatio: 3.00, useCase: "Quarter carry, 3/4 rollout (~25% fly)" },
-      { id: "8i", name: "8 Iron",   ratioLabel: "1:2.3", rollRatio: 2.33, useCase: "Classic 30% carry / 70% roll bump-and-run" },
-      { id: "9i", name: "9 Iron",   ratioLabel: "1:1.5", rollRatio: 1.50, useCase: "40% carry / 60% roll mid-runner" },
-      { id: "PW", name: "PW",       ratioLabel: "1:1",   rollRatio: 1.00, useCase: "50% carry / 50% roll balanced chip" },
-      { id: "52", name: "52° GW",   ratioLabel: "1.5:1", rollRatio: 0.60, useCase: "60–65% carry, checking pitch-chip" },
-      { id: "56", name: "56° SW",   ratioLabel: "4:1",   rollRatio: 0.25, useCase: "80%+ carry, short-sided high stop" }
-    ];
-
-    // 10% Carry-to-Roll Visual Ratio Presets (10% Carry up to 90% Max Carry)
-    const CHIP_RATIO_PRESETS = [
-      { carryPct: 10, rollPct: 90, title: "10% Carry", sub: "90% Roll (1:9)", desc: "Ball just off green with a long rollout across the putting surface." },
-      { carryPct: 20, rollPct: 80, title: "20% Carry", sub: "80% Roll (1:4)", desc: "Land 1/5 of the way to the hole and let it release the remaining 4/5." },
-      { carryPct: 30, rollPct: 70, title: "30% Carry", sub: "70% Roll (~1:2.3)", desc: "Land ~1/3 of the way to the cup; high-percentage bump-and-run." },
-      { carryPct: 40, rollPct: 60, title: "40% Carry", sub: "60% Roll (2:3)", desc: "Land just shy of halfway; moderate rollout to the pin." },
-      { carryPct: 50, rollPct: 50, title: "50% Carry", sub: "50% Roll (1:1)", desc: "Even 50/50 split — land halfway between the ball and the hole." },
-      { carryPct: 60, rollPct: 40, title: "60% Carry", sub: "40% Roll (3:2)", desc: "Fly past halfway to clear wider fringe/apron; controlled release." },
-      { carryPct: 70, rollPct: 30, title: "70% Carry", sub: "30% Roll (~2.3:1)", desc: "Carry ~2/3 of total distance; soft landing with short rollout." },
-      { carryPct: 80, rollPct: 20, title: "80% Carry", sub: "20% Roll (4:1)", desc: "Short-sided pin; fly 80% of the way with quick checking action." },
-      { carryPct: 90, rollPct: 10, title: "90% Max",   sub: "10% Roll (9:1)", desc: "Max carry over bunker/mound to a tight pin; high soft landing." }
+      { id: "3H", name: "3 Hybrid", ratioLabel: "1:9",   rollRatio: 9.00, useCase: "Putter-style hybrid bump, immediate roll (~10% fly)" },
+      { id: "4H", name: "4 Hybrid", ratioLabel: "1:6.5", rollRatio: 6.50, useCase: "Collar bump and run through heavy fringe (~13% fly)" },
+      { id: "5i", name: "5 Iron",   ratioLabel: "1:5",   rollRatio: 5.00, useCase: "Links-style low punch runner (~17% fly)" },
+      { id: "6i", name: "6 Iron",   ratioLabel: "1:4",   rollRatio: 4.00, useCase: "Low runner with extensive roll across large green (~20% fly)" },
+      { id: "7i", name: "7 Iron",   ratioLabel: "1:3",   rollRatio: 3.00, useCase: "Quarter carry onto putting surface, long roll (~25% fly)" },
+      { id: "8i", name: "8 Iron",   ratioLabel: "1:2.3", rollRatio: 2.33, useCase: "Classic 30/70 bump-and-run to mid/back pin (~30% fly)" },
+      { id: "9i", name: "9 Iron",   ratioLabel: "1:1.5", rollRatio: 1.50, useCase: "Mid-runner with smooth controlled release (~40% fly)" },
+      { id: "PW", name: "PW",       ratioLabel: "1:1",   rollRatio: 1.00, useCase: "Balanced 50/50 carry and roll across green (~50% fly)" },
+      { id: "52", name: "52° GW",   ratioLabel: "1.5:1", rollRatio: 0.60, useCase: "Medium-high carry with short checking release (~63% fly)" },
+      { id: "56", name: "56° SW",   ratioLabel: "4:1",   rollRatio: 0.25, useCase: "Short-sided pin, high flight, minimal roll (~80% fly)" }
     ];
 
     const DEFAULT_STATE = {
       pwBaseline: 110,
       turfCondition: 'medium',
-      chipCarryPct: 30,
+      selectedChipClub: '8i',
       clubs: {
         "56": 80,
         "52": 95,
@@ -848,7 +874,9 @@
           return {
             pwBaseline: sanitizeNumber(parsed.pwBaseline, DEFAULT_STATE.pwBaseline, 60, 200),
             turfCondition: ['soft', 'medium', 'firm'].includes(parsed.turfCondition) ? parsed.turfCondition : 'medium',
-            chipCarryPct: sanitizeNumber(parsed.chipCarryPct, DEFAULT_STATE.chipCarryPct, 10, 90),
+            selectedChipClub: typeof parsed.selectedChipClub === 'string' && CHIP_CLUBS.some(c => c.id === parsed.selectedChipClub)
+              ? parsed.selectedChipClub
+              : DEFAULT_STATE.selectedChipClub,
             clubs: { ...DEFAULT_STATE.clubs, ...(parsed.clubs || {}) }
           };
         }
@@ -894,6 +922,9 @@
             chipLieEl.value = targetParams.lieKey === 'fringe' ? 'fairway' : targetParams.lieKey;
           }
         }
+        if (targetParams && targetParams.clubId) {
+          userState.selectedChipClub = targetParams.clubId;
+        }
         renderChipping();
       } else if (tabKey === 'partial') {
         renderMatrix(targetParams ? targetParams.highlightClubId : null);
@@ -901,6 +932,129 @@
         renderFull(targetParams ? targetParams.highlightClubId : null);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
+    function resetShotConditions() {
+      const distInput = document.getElementById('advInputDist');
+      if (distInput) distInput.value = 75;
+
+      const lieSelect = document.getElementById('advLieSelect');
+      if (lieSelect) lieSelect.value = 'fairway';
+
+      const turfSelect = document.getElementById('advTurfSelect');
+      if (turfSelect) turfSelect.value = 'medium';
+      userState.turfCondition = 'medium';
+
+      const windSelect = document.getElementById('advWindSelect');
+      if (windSelect) windSelect.value = '0';
+
+      const elevSelect = document.getElementById('advElevSelect');
+      if (elevSelect) elevSelect.value = '0';
+
+      const chipLieSelect = document.getElementById('chipLieSelect');
+      if (chipLieSelect) chipLieSelect.value = 'fairway';
+
+      const chipFirmSelect = document.getElementById('chipFirmSelect');
+      if (chipFirmSelect) chipFirmSelect.value = '1.00';
+
+      saveState();
+      renderAdvisor();
+      renderFull();
+      renderChipping();
+      showToast('Shot settings reset (calibrations kept)');
+    }
+
+    function buildTrajectoryVisual(type, flyYds, rollYds, totalYds, apexLabel) {
+      const colorMap = {
+        'opt-chip': 'var(--chip-color)',
+        'opt-p2': 'var(--p2-color)',
+        'opt-p3': 'var(--p3-color)',
+        'opt-full': 'var(--full-color)'
+      };
+      const hexMap = {
+        'opt-chip': '#c084fc',
+        'opt-p2': '#38bdf8',
+        'opt-p3': '#f59e0b',
+        'opt-full': '#f43f5e'
+      };
+      // Distinct realistic apex elevations (ground is at y = 50 in a 58px viewBox)
+      const apexProfile = {
+        'opt-chip': { apexY: 43, label: 'Shallow Bump' },        // 7px peak height
+        'opt-p2':   { apexY: 32, label: 'Low Punch Runner' },     // 18px peak height
+        'opt-p3':   { apexY: 19, label: 'Mid Stopping Arc' },     // 31px peak height
+        'opt-full': { apexY: 6,  label: 'Towering High Apex' }     // 44px peak height
+      };
+
+      const strokeColor = colorMap[type] || 'var(--p2-color)';
+      const hexColor = hexMap[type] || '#38bdf8';
+      const profile = apexProfile[type] || { apexY: 24, label: apexLabel };
+      const apexY = profile.apexY;
+
+      const total = flyYds + rollYds > 0 ? (flyYds + rollYds) : 1;
+      const flyRatio = Math.max(0.08, Math.min(0.96, flyYds / total));
+      const rollRatio = 1 - flyRatio;
+      const flyPct = Math.round(flyRatio * 100);
+      const rollPct = 100 - flyPct;
+
+      const xStart = 14;
+      const xMax = 320;
+      const groundY = 50;
+      const totalSpan = xMax - xStart;
+      const carryX = Math.round(xStart + (totalSpan * flyRatio));
+      const carrySpan = carryX - xStart;
+
+      // Realistic aerodynamic flight:
+      // Apex occurs at ~64% of carry distance, with steep descent into landing
+      const apexX = Math.round(xStart + (carrySpan * 0.64));
+
+      // Cubic Bezier curve control points creating realistic aerodynamic flight:
+      // Launch climb:
+      const cp1X = Math.round(xStart + (carrySpan * 0.25));
+      const cp1Y = Math.round(apexY + (groundY - apexY) * 0.12);
+      const cp2X = Math.round(apexX - (carrySpan * 0.12));
+      const cp2Y = apexY;
+
+      // Steep descent drop:
+      const cp3X = Math.round(apexX + (carrySpan * 0.10));
+      const cp3Y = apexY;
+      const cp4X = Math.round(carryX - (carrySpan * 0.06));
+      const cp4Y = Math.round(groundY - (groundY - apexY) * 0.42);
+
+      const flightPath = `M ${xStart} ${groundY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${apexX} ${apexY} C ${cp3X} ${cp3Y}, ${cp4X} ${cp4Y}, ${carryX} ${groundY}`;
+      const fillPath = `${flightPath} L ${carryX} ${groundY} L ${xStart} ${groundY} Z`;
+
+      return `
+        <div class="opt-traj-box">
+          <div class="opt-traj-header">
+            <span class="opt-traj-tag" style="color:${strokeColor}">${apexLabel || profile.label}</span>
+            <div class="opt-traj-stats">
+              <span style="color:${strokeColor}">✈️ Fly ${flyYds}y (${flyPct}%)</span>
+              <span style="color:var(--roll-color)">⛳ Roll ${rollYds}y (${rollPct}%)</span>
+            </div>
+          </div>
+          <svg class="opt-traj-svg" viewBox="0 0 340 58">
+            <!-- Ground baseline -->
+            <line x1="8" y1="${groundY}" x2="332" y2="${groundY}" stroke="#26354a" stroke-width="1.5" />
+            
+            <!-- Shaded flight trajectory area -->
+            <path d="${fillPath}" fill="${hexColor}" fill-opacity="0.10" />
+            
+            <!-- Aerodynamic Flight Arc (steep climb, delayed apex, steep descent) -->
+            <path d="${flightPath}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-linecap="round" />
+            
+            <!-- Landing spot marker -->
+            <circle cx="${carryX}" cy="${groundY}" r="3.5" fill="#ffffff" stroke="${strokeColor}" stroke-width="1.5" />
+            
+            <!-- Ground rollout line -->
+            <line x1="${carryX}" y1="${groundY}" x2="${xMax}" y2="${groundY}" stroke="var(--roll-color)" stroke-width="3" stroke-dasharray="4 3" stroke-linecap="round" />
+            
+            <!-- Target pin & cup flag -->
+            <line x1="${xMax}" y1="${groundY}" x2="${xMax}" y2="${groundY - 18}" stroke="#cbd5e1" stroke-width="1.5" />
+            <polygon points="${xMax},${groundY - 18} ${xMax + 7},${groundY - 14} ${xMax},${groundY - 10}" fill="var(--roll-color)" />
+          </svg>
+        </div>
+      `;
     }
 
     // 1. Omni Shot Selector Logic (All in Yards)
@@ -948,20 +1102,7 @@
         return `<span class="delta-badge delta-short">${diff}y short</span>`;
       }
 
-      // A. Greenside Visual Ratio Chip Option (when inside 45 yards)
-      if (baseRawYards <= 45) {
-        cards.push({
-          type: 'opt-chip', tag: 'tag-chip', label: `Greenside Chip (${lieSpec.name})`,
-          title: `Visual Carry-to-Roll Chip Menu (10%–90% Carry)`,
-          deltaHtml: `<span class="delta-badge delta-exact">Zero Pacing</span>`,
-          metrics: `Pick Carry % to fringe landing spot (10% to Max) &rarr; instant club match`,
-          desc: `Tap to open 10%–90% Carry-to-Roll ratio selector &rarr;`,
-          targetTab: 'chipping',
-          params: { lieKey }
-        });
-      }
-
-      // B. P2 Hip-High Runners (Shaft parallel at 8:00, passive wrists) - Fairway/Fringe only
+      // 1. Calibrated Mechanical Swings: P2 Hip-High Runners (Shaft parallel at 8:00)
       if (lieSpec.allowsP2) {
         CLUB_SPECS.forEach(c => {
           const full = userState.clubs[c.id] || 100;
@@ -974,6 +1115,7 @@
               title: `${c.name} (${total} yds total)`,
               deltaHtml: formatDeltaBadge(total, playingYards),
               metrics: `Carry ${fly} yds + Roll ${roll} yds &bull; Single-lever strike`,
+              trajectoryHtml: buildTrajectoryVisual('opt-p2', fly, roll, total, 'Low Piercing Flight'),
               desc: `Tap to inspect ${c.name} in partial matrix`,
               targetTab: 'partial',
               params: { highlightClubId: c.id }
@@ -994,6 +1136,7 @@
             title: `${c.name} (${total} yds total)`,
             deltaHtml: formatDeltaBadge(total, playingYards),
             metrics: `Carry ${fly} yds + Roll ${roll} yds &bull; ${lieKey === 'rough' || lieKey === 'deep_rough' ? lieSpec.cue : 'Aerodynamic bite'}`,
+            trajectoryHtml: buildTrajectoryVisual('opt-p3', fly, roll, total, 'Mid-High Aerodynamic Arc'),
             desc: `Tap to inspect ${c.name} in partial matrix`,
             targetTab: 'partial',
             params: { highlightClubId: c.id }
@@ -1005,11 +1148,14 @@
       CLUB_SPECS.forEach(c => {
         const full = userState.clubs[c.id] || 100;
         if (Math.abs(full - playingYards) <= 9) {
+          const fullFly = Math.max(1, Math.round(full * 0.94));
+          const fullRoll = Math.max(1, full - fullFly);
           cards.push({
             type: 'opt-full', tag: 'tag-full', label: `Full Swing (${lieSpec.name})`,
             title: `${c.name} Full (${full} yds stock)`,
             deltaHtml: formatDeltaBadge(full, playingYards),
-            metrics: `${lieKey === 'rough' || lieKey === 'deep_rough' ? lieSpec.cue : 'Full apex carry & maximum stopping power'}`,
+            metrics: `Carry ~${fullFly} yds + Roll ~${fullRoll} yds &bull; ${lieKey === 'rough' || lieKey === 'deep_rough' ? lieSpec.cue : 'Full apex carry & maximum stopping power'}`,
+            trajectoryHtml: buildTrajectoryVisual('opt-full', fullFly, fullRoll, full, 'High Apex Steep Descent'),
             desc: `Tap to inspect in full shot matrix`,
             targetTab: 'full',
             params: { highlightClubId: c.id }
@@ -1018,9 +1164,14 @@
       });
 
       if (cards.length === 0) {
+        const isGreenside = playingYards <= 40;
+        const emptyNotice = isGreenside
+          ? `No calibrated mechanical swing (P2/P3/Full) reaches ${playingYards}y. Greenside shots under 40y are played by putting touch and green roll ratio &mdash; tap <button class="gear-btn" style="display:inline-flex; padding:3px 8px; margin:0 4px; vertical-align:middle;" onclick="routeTo('chipping')">⛳ Chip</button> to open club flight-to-roll runways.`
+          : `No direct stock match within &plusmn;9 yds of effective target (${playingYards}y). Tap <strong>⛳ Chip</strong> above for greenside touch or consider choking down 1 inch on a partial swing.`;
+
         list.innerHTML = `
           <div style="background:#111c2e; border:1px solid var(--card-border); border-radius:8px; color:var(--text-muted); font-size:0.85rem; padding:16px;">
-            No direct stock match within &plusmn;9 yds of effective target. Tap <strong>⛳ Chip</strong> above for greenside shots or consider choking down 1 inch on a partial swing.
+            ${emptyNotice}
           </div>`;
         return;
       }
@@ -1038,6 +1189,7 @@
           </div>
           <div class="opt-title">${c.title}</div>
           <div class="opt-metrics">${c.metrics}</div>
+          ${c.trajectoryHtml || ''}
           <div class="opt-desc">${c.desc}</div>
         `;
         div.addEventListener('click', () => routeTo(c.targetTab, c.params));
@@ -1045,128 +1197,91 @@
       });
     }
 
-    // 2. Visual Ratio Chipping Engine (10% Carry up to 90% Max Carry)
-    function selectChipCarryPreset(carryPct) {
+    // 2. Club-Driven Normal Chipping Engine
+    function selectChipClub(clubId) {
       /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
-      userState.chipCarryPct = sanitizeNumber(carryPct, 30, 10, 90);
-      saveState();
-      renderChipping();
-    }
-
-    function solveClubForCarryPct(targetCarryPct, candidateClubs, greenSpeedMult, lieRollMult, lieKey) {
-      let bestClub = candidateClubs[0] || CHIP_CLUBS[0];
-      let minCarryDiff = 999;
-
-      candidateClubs.forEach(c => {
-        const effRollRatio = c.rollRatio * greenSpeedMult * lieRollMult;
-        const effCarryPct = Math.round(100 / (1 + effRollRatio));
-        const diff = Math.abs(effCarryPct - targetCarryPct);
-        if (diff < minCarryDiff) {
-          minCarryDiff = diff;
-          bestClub = c;
-        }
-      });
-
-      const bestEffRollRatio = bestClub.rollRatio * greenSpeedMult * lieRollMult;
-      const bestEffCarryPct = Math.round(100 / (1 + bestEffRollRatio));
-      const diffFromTarget = targetCarryPct - bestEffCarryPct;
-
-      let displayClubName = bestClub.name;
-      let setupMod = "Stock neutral chip stance (ball center-back, shaft neutral, square face).";
-
-      if (targetCarryPct >= 90) {
-        displayClubName = `${bestClub.name} (Open Face)`;
-        setupMod = "Ball slightly forward of center, open clubface 15°, keep speed through impact for high soft stop.";
-      } else if (diffFromTarget >= 6) {
-        setupMod = `Play ball 1" forward in stance with a softer wrist release to add ~${diffFromTarget}% carry & stop quicker.`;
-      } else if (diffFromTarget <= -6) {
-        displayClubName = lieKey !== 'fairway' ? `${bestClub.name} (Hooded / Back)` : bestClub.name;
-        setupMod = `Play ball 1–2" further back in stance and lean shaft forward to drive a lower, hotter rollout.`;
-      } else if (lieKey === 'deep_rough') {
-        setupMod = "Firm left-hand grip, ball back of center, steeper descending hinge-and-hold strike so grass doesn't twist face.";
-      } else if (lieKey === 'rough') {
-        setupMod = "Slightly firmer grip pressure; expect ~15–20% extra release from grass reducing backspin.";
+      if (CHIP_CLUBS.some(c => c.id === clubId)) {
+        userState.selectedChipClub = clubId;
+        saveState();
+        renderChipping();
       }
-
-      return {
-        club: bestClub,
-        displayClubName,
-        effCarryPct: bestEffCarryPct,
-        effRollPct: 100 - bestEffCarryPct,
-        setupMod
-      };
     }
 
     function renderChipping() {
       /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
       const lieKey = document.getElementById('chipLieSelect')?.value || 'fairway';
       const greenSpeedMult = sanitizeNumber(document.getElementById('chipFirmSelect')?.value, 1.0, 0.5, 2.0);
-      const selectedCarryPct = sanitizeNumber(userState.chipCarryPct, 30, 10, 90);
-      const selectedPreset = CHIP_RATIO_PRESETS.find(p => p.carryPct === selectedCarryPct) || CHIP_RATIO_PRESETS[2];
 
-      // Filter playable clubs by lie condition
-      let candidateClubs = CHIP_CLUBS;
       let lieRollMult = 1.0;
+      let lieCue = "Weight 60% on lead foot, ball centered to slightly back, quiet wrists with a smooth chest turn.";
       if (lieKey === 'deep_rough') {
-        candidateClubs = CHIP_CLUBS.filter(c => ['PW', '52', '56'].includes(c.id));
         lieRollMult = 1.25;
+        lieCue = "Normal chip out of heavy rough: Slightly firmer grip and steeper descending strike through impact to avoid grass drag.";
       } else if (lieKey === 'rough') {
-        candidateClubs = CHIP_CLUBS.filter(c => !['3H', '4H', '5i', '6i', '7i'].includes(c.id));
         lieRollMult = 1.15;
+        lieCue = "Normal chip out of light rough: Standard setup with firm lead wrist; expect ~15% extra rollout as grass reduces spin.";
       }
 
-      // Render 10% -> 90% Max Preset Grid
-      const gridEl = document.getElementById('chipRatioPresetsGrid');
+      const selectedClubId = userState.selectedChipClub || '8i';
+      const selectedClub = CHIP_CLUBS.find(c => c.id === selectedClubId) || CHIP_CLUBS.find(c => c.id === '8i') || CHIP_CLUBS[0];
+
+      // Render clickable club buttons
+      const gridEl = document.getElementById('chipClubButtonsGrid');
       if (gridEl) {
         gridEl.innerHTML = '';
-        CHIP_RATIO_PRESETS.forEach(preset => {
-          const solved = solveClubForCarryPct(preset.carryPct, candidateClubs, greenSpeedMult, lieRollMult, lieKey);
+        CHIP_CLUBS.forEach(c => {
+          const effRollRatio = c.rollRatio * greenSpeedMult * lieRollMult;
+          const effCarryPct = Math.max(5, Math.min(95, Math.round(100 / (1 + effRollRatio))));
+          const effRollPct = 100 - effCarryPct;
+
           const btn = document.createElement('button');
           btn.type = 'button';
-          btn.className = `ratio-tile ${preset.carryPct === selectedPreset.carryPct ? 'active' : ''}`;
+          btn.className = `ratio-tile ${c.id === selectedClub.id ? 'active' : ''}`;
           btn.innerHTML = `
             <div class="ratio-tile-top">
-              <span class="ratio-pct-label">${preset.title}</span>
-              <span class="ratio-club-pill">${solved.displayClubName}</span>
+              <span class="ratio-pct-label">${c.name}</span>
+              <span class="ratio-club-pill">${effCarryPct}% Fly</span>
             </div>
             <div class="ratio-bar-track">
-              <div class="ratio-bar-carry" style="width: ${preset.carryPct}%;"></div>
+              <div class="ratio-bar-carry" style="width: ${effCarryPct}%;"></div>
             </div>
             <div class="ratio-tile-sub">
-              <span style="color:var(--chip-color)">Fly ${preset.carryPct}%</span>
-              <span style="color:var(--roll-color)">Roll ${preset.rollPct}%</span>
+              <span style="color:var(--chip-color)">Fly ${effCarryPct}%</span>
+              <span style="color:var(--roll-color)">Roll ${effRollPct}%</span>
             </div>
           `;
-          btn.addEventListener('click', () => selectChipCarryPreset(preset.carryPct));
+          btn.addEventListener('click', () => selectChipClub(c.id));
           gridEl.appendChild(btn);
         });
       }
 
-      // Solve active preset details
-      const activeSolved = solveClubForCarryPct(selectedPreset.carryPct, candidateClubs, greenSpeedMult, lieRollMult, lieKey);
+      // Calculate active club trajectory
+      const activeEffRollRatio = selectedClub.rollRatio * greenSpeedMult * lieRollMult;
+      const activeCarryPct = Math.max(5, Math.min(95, Math.round(100 / (1 + activeEffRollRatio))));
+      const activeRollPct = 100 - activeCarryPct;
 
-      // Update Visual Proportion Bar
+      // Update Visual Runway Bar
       const carryBanner = document.getElementById('chipCarryBannerText');
-      if (carryBanner) carryBanner.textContent = `✈️ Carry ${selectedPreset.carryPct}% (To Landing Spot)`;
+      if (carryBanner) carryBanner.textContent = `✈️ Carry ${activeCarryPct}% (To Landing Spot)`;
       const rollBanner = document.getElementById('chipRollBannerText');
-      if (rollBanner) rollBanner.textContent = `⛳ Roll ${selectedPreset.rollPct}% (Release to Cup)`;
+      if (rollBanner) rollBanner.textContent = `⛳ Roll ${activeRollPct}% (Release to Cup)`;
       const carryFill = document.getElementById('chipVisualCarryFill');
-      if (carryFill) carryFill.style.width = `${selectedPreset.carryPct}%`;
+      if (carryFill) carryFill.style.width = `${activeCarryPct}%`;
       const markerEl = document.getElementById('chipLandingSpotMarker');
-      if (markerEl) markerEl.textContent = `🎯 Land ${selectedPreset.carryPct}% of the way to hole`;
+      if (markerEl) markerEl.textContent = `🎯 Land ${activeCarryPct}% of total distance`;
 
       // Update Primary Recommendation Card
       const recClubDisplay = document.getElementById('chipRecClubDisplay');
       if (recClubDisplay) {
-        recClubDisplay.textContent = `${activeSolved.displayClubName} — ${selectedPreset.carryPct}% Carry / ${selectedPreset.rollPct}% Roll`;
+        recClubDisplay.textContent = `${selectedClub.name} — ${activeCarryPct}% Carry / ${activeRollPct}% Roll`;
       }
       const recDetails = document.getElementById('chipRecDetails');
       if (recDetails) {
-        recDetails.textContent = `${selectedPreset.desc} (Club natural split under current conditions: ~${activeSolved.effCarryPct}% carry / ~${activeSolved.effRollPct}% roll).`;
+        recDetails.textContent = `Normal chip: Fly ~${activeCarryPct}% of the distance to land safely on the green, then ball rolls out the remaining ~${activeRollPct}% to the cup (Stock Ratio ${selectedClub.ratioLabel}).`;
       }
       const recCue = document.getElementById('chipRecCue');
       if (recCue) {
-        recCue.innerHTML = `<strong>Setup &amp; Feel Cue:</strong> ${activeSolved.setupMod}`;
+        recCue.innerHTML = `<strong>Normal Chip Mechanics:</strong> ${lieCue}`;
       }
 
       // Render Bag Carry % vs Roll % Reference Table
@@ -1175,20 +1290,17 @@
       tb.innerHTML = '';
 
       CHIP_CLUBS.forEach(c => {
-        const isPlayable = candidateClubs.some(cand => cand.id === c.id);
         const effRollRatio = c.rollRatio * greenSpeedMult * lieRollMult;
-        const effCarryPct = Math.round(100 / (1 + effRollRatio));
+        const effCarryPct = Math.max(5, Math.min(95, Math.round(100 / (1 + effRollRatio))));
         const effRollPct = 100 - effCarryPct;
 
         const tr = document.createElement('tr');
-        if (isPlayable && c.id === activeSolved.club.id) {
+        if (c.id === selectedClub.id) {
           tr.className = 'highlighted';
-        } else if (!isPlayable) {
-          tr.style.opacity = '0.4';
         }
 
         tr.innerHTML = `
-          <td class="club-col">${c.name}${!isPlayable ? ' <span style="font-size:0.65rem; color:#f43f5e;">(Snag risk)</span>' : ''}</td>
+          <td class="club-col">${c.name}</td>
           <td style="color:var(--text-muted); font-weight:700;">${c.ratioLabel}</td>
           <td style="color:var(--chip-color); font-weight:800;">${effCarryPct}%</td>
           <td style="color:var(--roll-color); font-weight:800;">${effRollPct}%</td>
