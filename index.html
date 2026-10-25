@@ -496,58 +496,38 @@
     <!-- 1. SHOT SELECTOR (MAIN SCREEN) -->
     <section id="view-advisor" class="view-panel active">
       <div class="card">
-        <div class="card-title">
-          <span>Shot Target &amp; Conditions</span>
-          <button class="gear-btn" onclick="resetShotConditions()" title="Reset distance, lie, turf, wind, and elevation">↺ Reset Shot</button>
+        <!-- 1. Round-Level Turf Condition (Set at Start of Round, above yardage) -->
+        <div class="card-title" style="margin-bottom:8px;">
+          <span style="display:flex; align-items:center; gap:6px;">🌱 Round Turf Condition</span>
+          <span class="badge-tag" style="background:rgba(16,185,129,0.15); color:var(--accent); margin:0;">Round Setting &bull; Kept on Reset</span>
         </div>
-        <div class="grid-row">
-          <div class="field-group">
-            <label for="advInputDist" id="advDistLabel">Target Distance (Yards)</label>
-            <input type="number" id="advInputDist" value="75" min="5" max="320" inputmode="numeric" />
-          </div>
-          <div class="field-group">
-            <label for="advLieSelect">Lie Condition</label>
-            <select id="advLieSelect">
-              <option value="fairway" selected>Fairway / Clean (1.0x)</option>
-              <option value="fringe">Fringe Collar (Punch roll)</option>
-              <option value="rough">Light Rough (+6% club-up)</option>
-              <option value="deep_rough">Heavy Rough (+12% club-up)</option>
-            </select>
-          </div>
-          <div class="field-group">
-            <label for="advTurfSelect">Turf Condition</label>
-            <select id="advTurfSelect">
-              <option value="soft">Soft / Wet (0.75x)</option>
-              <option value="medium" selected>Medium / Normal (1.0x)</option>
-              <option value="firm">Firm / Links (1.30x)</option>
-            </select>
-          </div>
+        <div class="field-group" style="margin-bottom:14px;">
+          <label for="advTurfSelect">Course Firmness (Affects All Club Ground Rollout)</label>
+          <select id="advTurfSelect">
+            <option value="soft">Soft / Wet (0.75x roll)</option>
+            <option value="medium" selected>Medium / Normal (1.0x roll)</option>
+            <option value="firm">Firm / Links (1.30x roll)</option>
+          </select>
         </div>
 
-        <!-- Optional Wind & Elevation -->
-        <div class="optional-tray" id="optionalTray">
-          <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">
-            Optional Environment Adjustments (Wind & Elevation)
+        <!-- 2. Shot-Level Target & Lie -->
+        <div style="border-top:1px solid var(--card-border); padding-top:14px;">
+          <div class="card-title">
+            <span>Shot Target &amp; Lie</span>
+            <button class="gear-btn" onclick="resetShotConditions()" title="Reset distance and lie (keeps turf setting)">↺ Reset Shot</button>
           </div>
           <div class="grid-row">
             <div class="field-group">
-              <label for="advWindSelect">Wind</label>
-              <select id="advWindSelect">
-                <option value="0" selected>Calm (0 mph)</option>
-                <option value="10">10 mph Headwind (+10y)</option>
-                <option value="20">20 mph Headwind (+20y)</option>
-                <option value="-7">10 mph Tailwind (-7y)</option>
-                <option value="-14">20 mph Tailwind (-14y)</option>
-              </select>
+              <label for="advInputDist" id="advDistLabel">Target Distance (Yards)</label>
+              <input type="number" id="advInputDist" value="75" min="5" max="320" inputmode="numeric" />
             </div>
             <div class="field-group">
-              <label for="advElevSelect">Elevation</label>
-              <select id="advElevSelect">
-                <option value="0" selected>Level (0 ft)</option>
-                <option value="5">Uphill +15 ft (+5y)</option>
-                <option value="10">Uphill +30 ft (+10y)</option>
-                <option value="-5">Downhill -15 ft (-5y)</option>
-                <option value="-10">Downhill -30 ft (-10y)</option>
+              <label for="advLieSelect">Lie Condition</label>
+              <select id="advLieSelect">
+                <option value="fairway" selected>Fairway / Clean (1.0x)</option>
+                <option value="fringe">Fringe Collar (Punch roll)</option>
+                <option value="rough">Light Rough (+6% club-up)</option>
+                <option value="deep_rough">Heavy Rough (+12% club-up)</option>
               </select>
             </div>
           </div>
@@ -558,7 +538,41 @@
             <span style="font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Effective Target</span>
             <div style="font-size:1.05rem; font-weight:800; color:#fff;" id="advPlaysLikeText">75 Yards</div>
           </div>
-          <div id="advAdjustmentsBadge" style="font-size:0.72rem; color:var(--accent); font-weight:700;">No wind / elev adjustments</div>
+          <div id="advAdjustmentsBadge" style="font-size:0.72rem; color:var(--accent); font-weight:700;">Clean lie (1.0x)</div>
+        </div>
+      </div>
+
+      <!-- Wind & Elevation Principles Guide -->
+      <div class="card" style="background:#0c1424; border:1px solid #1e293b; padding:12px 14px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+            <span>🌬️ Wind &amp; ⛰️ Elevation Principles</span>
+          </div>
+          <span style="font-size:0.68rem; color:var(--accent); font-weight:700;">Adjust Target Above</span>
+        </div>
+        <div class="grid-row" style="gap:10px;">
+          <!-- Wind Principles -->
+          <div style="background:#090e17; border:1px solid var(--card-border); border-radius:8px; padding:10px;">
+            <div style="font-size:0.72rem; font-weight:800; color:var(--p2-color); margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+              <span>🌬️ Wind Rules</span>
+            </div>
+            <ul style="font-size:0.73rem; color:#cbd5e1; list-style:none; display:flex; flex-direction:column; gap:5px; padding:0; margin:0;">
+              <li><strong>Headwind:</strong> <span style="color:#f43f5e; font-weight:700;">+10 yds</span> per 10 mph &bull; Ball balloons; favor lower, punchier shots (P2/P3).</li>
+              <li><strong>Tailwind:</strong> <span style="color:#34d399; font-weight:700;">-7 yds</span> per 10 mph &bull; Flatter flight, less backspin, extra rollout.</li>
+              <li><strong>Crosswind:</strong> <span style="color:#f59e0b; font-weight:700;">+3–5 yds</span> drag loss &bull; Aim into wind or hit a piercing low punch.</li>
+            </ul>
+          </div>
+          <!-- Elevation Principles -->
+          <div style="background:#090e17; border:1px solid var(--card-border); border-radius:8px; padding:10px;">
+            <div style="font-size:0.72rem; font-weight:800; color:var(--p3-color); margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+              <span>⛰️ Elevation Rules (1y per 3ft)</span>
+            </div>
+            <ul style="font-size:0.73rem; color:#cbd5e1; list-style:none; display:flex; flex-direction:column; gap:5px; padding:0; margin:0;">
+              <li><strong>Uphill:</strong> <span style="color:#f43f5e; font-weight:700;">+1 yd</span> per 3 ft rise (+15ft &rarr; +5y, +30ft &rarr; +10y) &bull; Releases more.</li>
+              <li><strong>Downhill:</strong> <span style="color:#34d399; font-weight:700;">-1 yd</span> per 3 ft drop (-15ft &rarr; -5y, -30ft &rarr; -10y) &bull; Lands softer.</li>
+              <li><strong>Key Cue:</strong> <em>"Breezy? Swing it easy."</em> Add/subtract yards directly in Target Distance.</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -583,12 +597,12 @@
             <div style="font-size:1.05rem; font-weight:800; color:#fff;" id="fullConditionsDisplay">75 Yards</div>
           </div>
           <div id="fullConditionsBreakdown" style="font-size:0.72rem; color:var(--accent); font-weight:700;">
-            No wind / elev adjustments
+            Clean Lie (1.0x)
           </div>
         </div>
 
         <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
-          All yardages reflect wind, elevation, and target from the Shot Selector. Highlighted row indicates the best matching stock club.
+          All club stock distances compared against the current Shot Selector target. Highlighted row indicates the best matching stock club.
         </p>
 
         <div class="table-wrap">
@@ -596,9 +610,8 @@
             <thead>
               <tr>
                 <th class="club-col">Club</th>
-                <th>Stock</th>
-                <th style="color:var(--text-muted)">Wind/Elev</th>
-                <th style="color:var(--full-color)">Eff. Reach</th>
+                <th>Stock Carry</th>
+                <th style="color:var(--full-color)">Target</th>
                 <th>vs Target</th>
               </tr>
             </thead>
@@ -942,15 +955,7 @@
       const lieSelect = document.getElementById('advLieSelect');
       if (lieSelect) lieSelect.value = 'fairway';
 
-      const turfSelect = document.getElementById('advTurfSelect');
-      if (turfSelect) turfSelect.value = 'medium';
-      userState.turfCondition = 'medium';
-
-      const windSelect = document.getElementById('advWindSelect');
-      if (windSelect) windSelect.value = '0';
-
-      const elevSelect = document.getElementById('advElevSelect');
-      if (elevSelect) elevSelect.value = '0';
+      // Note: turfCondition is set at the start of the round and is preserved on shot reset
 
       const chipLieSelect = document.getElementById('chipLieSelect');
       if (chipLieSelect) chipLieSelect.value = 'fairway';
@@ -962,7 +967,7 @@
       renderAdvisor();
       renderFull();
       renderChipping();
-      showToast('Shot settings reset (calibrations kept)');
+      showToast('Shot reset (turf & calibrations kept)');
     }
 
     function buildTrajectoryVisual(type, flyYds, rollYds, totalYds, apexLabel) {
@@ -1061,31 +1066,24 @@
     function renderAdvisor() {
       /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
       const distInput = document.getElementById('advInputDist');
-      const lieKey = document.getElementById('advLieSelect').value;
+      const lieKey = document.getElementById('advLieSelect')?.value || 'fairway';
       const lieSpec = LIE_SPECS[lieKey] || LIE_SPECS.fairway;
-      const turfKey = document.getElementById('advTurfSelect').value;
-      const windAdj = sanitizeNumber(document.getElementById('advWindSelect').value, 0, -30, 40);
-      const elevAdj = sanitizeNumber(document.getElementById('advElevSelect').value, 0, -30, 30);
+      const turfKey = document.getElementById('advTurfSelect')?.value || userState.turfCondition || 'medium';
 
       userState.turfCondition = turfKey;
       const turfMultiplier = TURF_MULTIPLIERS[turfKey] || 1.0;
 
       const baseRawYards = sanitizeNumber(distInput?.value, 75, 5, 350);
       const lieAdj = Math.round(baseRawYards * lieSpec.addPct);
-      const netAdj = windAdj + elevAdj + lieAdj;
-      const playingYards = Math.max(1, Math.round(baseRawYards + netAdj));
+      const playingYards = Math.max(1, Math.round(baseRawYards + lieAdj));
 
       // Update header banner
       const badgeEl = document.getElementById('advAdjustmentsBadge');
-      if (netAdj !== 0) {
-        let parts = [];
-        if (windAdj !== 0) parts.push(`Wind: ${windAdj >= 0 ? '+' : ''}${windAdj}y`);
-        if (elevAdj !== 0) parts.push(`Elev: ${elevAdj >= 0 ? '+' : ''}${elevAdj}y`);
-        if (lieAdj !== 0) parts.push(`Lie (${lieSpec.name}): +${lieAdj}y`);
-        badgeEl.textContent = `${parts.join(' | ')} (Net: ${netAdj >= 0 ? '+' : ''}${netAdj}y)`;
+      if (lieAdj !== 0) {
+        badgeEl.textContent = `Lie (${lieSpec.name}): +${lieAdj}y (${playingYards}y target)`;
         badgeEl.style.color = 'var(--p3-color)';
       } else {
-        badgeEl.textContent = `Lie: ${lieSpec.name} (Calm / Level)`;
+        badgeEl.textContent = `Clean lie (1.0x &bull; ${playingYards}y target)`;
         badgeEl.style.color = 'var(--accent)';
       }
 
@@ -1342,32 +1340,27 @@
     // 4. Full Shots Logic (Full Shot Matrix mirroring Partial Matrix, driven by Shot Selector)
     function renderFull(highlightClubId = null) {
       /* SECURITY BOUNDARY: VERIFY AUTH / SANITIZE INPUT */
-      const baseRawYards = sanitizeNumber(document.getElementById('advInputDist').value, 75, 5, 350);
+      const baseRawYards = sanitizeNumber(document.getElementById('advInputDist')?.value, 75, 5, 350);
       const lieKey = document.getElementById('advLieSelect')?.value || 'fairway';
       const lieSpec = LIE_SPECS[lieKey] || LIE_SPECS.fairway;
-      const windAdj = sanitizeNumber(document.getElementById('advWindSelect').value, 0, -30, 40);
-      const elevAdj = sanitizeNumber(document.getElementById('advElevSelect').value, 0, -30, 30);
 
       const lieAdj = Math.round(baseRawYards * lieSpec.addPct);
-      const netAdj = windAdj + elevAdj + lieAdj;
-      const targetPlaysLike = Math.max(1, Math.round(baseRawYards + netAdj));
+      const targetPlaysLike = Math.max(1, Math.round(baseRawYards + lieAdj));
 
       // Update condition banner in full view
       const condDisplay = document.getElementById('fullConditionsDisplay');
       const condBreakdown = document.getElementById('fullConditionsBreakdown');
       if (condDisplay) {
-        condDisplay.textContent = `${baseRawYards}y Target → ${targetPlaysLike}y Plays-Like`;
+        condDisplay.textContent = lieAdj !== 0
+          ? `${baseRawYards}y Target → ${targetPlaysLike}y (${lieSpec.name})`
+          : `${baseRawYards}y Target`;
       }
       if (condBreakdown) {
-        if (netAdj !== 0) {
-          let parts = [];
-          if (windAdj !== 0) parts.push(`Wind: ${windAdj >= 0 ? '+' : ''}${windAdj}y`);
-          if (elevAdj !== 0) parts.push(`Elev: ${elevAdj >= 0 ? '+' : ''}${elevAdj}y`);
-          if (lieAdj !== 0) parts.push(`Lie (${lieSpec.name}): +${lieAdj}y`);
-          condBreakdown.textContent = `${parts.join(' | ')} (Net: ${netAdj >= 0 ? '+' : ''}${netAdj}y)`;
+        if (lieAdj !== 0) {
+          condBreakdown.textContent = `Lie Adjustment: +${lieAdj}y (${lieSpec.name})`;
           condBreakdown.style.color = 'var(--p3-color)';
         } else {
-          condBreakdown.textContent = `Lie: ${lieSpec.name} (Calm / Level)`;
+          condBreakdown.textContent = `Lie: Clean / Fairway (1.0x)`;
           condBreakdown.style.color = 'var(--accent)';
         }
       }
@@ -1392,8 +1385,7 @@
 
       CLUB_SPECS.forEach(c => {
         const stock = userState.clubs[c.id] || 100;
-        const effReach = Math.max(1, stock - netAdj);
-        const diff = effReach - baseRawYards;
+        const diff = stock - targetPlaysLike;
 
         let deltaBadge = '';
         if (diff === 0) {
@@ -1404,21 +1396,13 @@
           deltaBadge = `<span class="delta-badge delta-short">${diff}y short</span>`;
         }
 
-        let envText = '<span style="color:var(--text-muted)">0y</span>';
-        if (netAdj > 0) {
-          envText = `<span style="color:#f43f5e">-${netAdj}y</span>`;
-        } else if (netAdj < 0) {
-          envText = `<span style="color:#34d399">+${Math.abs(netAdj)}y</span>`;
-        }
-
         const tr = document.createElement('tr');
         if (c.id === bestClubId) tr.className = 'highlighted';
 
         tr.innerHTML = `
           <td class="club-col">${c.name}</td>
           <td style="color:#cbd5e1; font-weight:700;">${stock}y</td>
-          <td>${envText}</td>
-          <td style="color:var(--full-color); font-weight:800;">${effReach}y</td>
+          <td style="color:var(--full-color); font-weight:800;">${targetPlaysLike}y</td>
           <td>${deltaBadge}</td>
         `;
         tb.appendChild(tr);
@@ -1513,9 +1497,12 @@
       document.getElementById('advTurfSelect').addEventListener('change', (e) => {
         userState.turfCondition = e.target.value;
         saveState();
+        renderAdvisor();
+        renderMatrix();
+        renderFull();
       });
 
-      ['advInputDist', 'advLieSelect', 'advTurfSelect', 'advWindSelect', 'advElevSelect'].forEach(id => {
+      ['advInputDist', 'advLieSelect'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.addEventListener('input', () => { renderAdvisor(); renderFull(); });
